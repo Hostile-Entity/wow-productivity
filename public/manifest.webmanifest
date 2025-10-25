@@ -1,7 +1,7 @@
 {
   "name": "Wow Productivity",
   "short_name": "WowPro",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#0e0f13",
   "theme_color": "#0e7afe",
