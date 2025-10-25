@@ -23,7 +23,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="card">
-        <h1 className="h1">Wow Productivity</h1>
+        <h1 className="h1">Test App</h1>
         <p className="muted">Tap to add +10</p>
         <div className="balance">{balance}</div>
         <button className="btn" onClick={onAdd} disabled={pending} aria-label="Add ten">
