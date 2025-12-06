@@ -12,13 +12,14 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
 );
 
 // Simple SW registration
-if (
-  'serviceWorker' in navigator &&
-  window.location.protocol !== 'capacitor:'
-) {
+const isCapacitor = window.location.protocol === 'capacitor:';
+
+if ('serviceWorker' in navigator && !isCapacitor) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {
-      // ignore
-    });
+    navigator.serviceWorker
+      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .catch(() => {
+        // ignore
+      });
   });
 }
