@@ -1,0 +1,21 @@
+{
+    "daily": {
+      "minor": { "coins": 50, "xp": 250 },
+      "major": { "coins": 100, "xp": 500 }
+    },
+    "productive": {
+      "gray":   { "coinsPerMinute": 0.8 },
+      "green":  { "coinsPerMinute": 1.0 },
+      "yellow": { "coinsPerMinute": 1.2 },
+      "orange": { "coinsPerMinute": 1.5 },
+      "red":    { "coinsPerMinute": 2.0 }
+    },
+    "unproductive": {
+      "idle":      { "coinsPerMinute": -2.0 },
+      "time-sink": { "coinsPerMinute": -3.0 }
+    },
+    "unproductiveScaling": {
+      "hourlyIncreaseRate": 0.1
+    }
+  }
+  

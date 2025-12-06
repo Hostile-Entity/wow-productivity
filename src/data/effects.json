@@ -1,0 +1,68 @@
+{
+    "profit_24h_5": {
+      "rewardType": "profit_24h_5",
+      "kind": "coins-bonus",
+      "percent": 5,
+      "durationHours": 24,
+      "categories": ["productive", "daily"]
+    },
+    "profit_24h_10": {
+      "rewardType": "profit_24h_10",
+      "kind": "coins-bonus",
+      "percent": 10,
+      "durationHours": 24,
+      "categories": ["productive", "daily"]
+    },
+    "profit_24h_20": {
+      "rewardType": "profit_24h_20",
+      "kind": "coins-bonus",
+      "percent": 20,
+      "durationHours": 24,
+      "categories": ["productive", "daily"]
+    },
+  
+    "xp_24h_3": {
+      "rewardType": "xp_24h_3",
+      "kind": "xp-bonus",
+      "percent": 3,
+      "durationHours": 24,
+      "categories": ["productive", "daily"]
+    },
+    "xp_24h_7": {
+      "rewardType": "xp_24h_7",
+      "kind": "xp-bonus",
+      "percent": 7,
+      "durationHours": 24,
+      "categories": ["productive", "daily"]
+    },
+    "xp_24h_15": {
+      "rewardType": "xp_24h_15",
+      "kind": "xp-bonus",
+      "percent": 15,
+      "durationHours": 24,
+      "categories": ["productive", "daily"]
+    },
+  
+    "discount_all_15": {
+      "rewardType": "discount_all_15",
+      "kind": "discount",
+      "percent": 15,
+      "durationHours": 24,
+      "categories": ["unproductive"]
+    },
+    "discount_all_30": {
+      "rewardType": "discount_all_30",
+      "kind": "discount",
+      "percent": 30,
+      "durationHours": 24,
+      "categories": ["unproductive"]
+    },
+    "discount_all_50": {
+      "rewardType": "discount_all_50",
+      "kind": "discount",
+      "percent": 50,
+      "durationHours": 24,
+      "categories": ["unproductive"]
+    }
+  }
+  

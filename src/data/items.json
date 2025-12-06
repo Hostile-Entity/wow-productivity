@@ -1,0 +1,182 @@
+{
+  "free_1h": {
+    "name": "Unbound Pocketwatch",
+    "quality": "rare",
+    "value": 180,
+    "amount": 5,
+    "itemLevel": 80,
+    "requiredLevel": 20,
+    "description": "Use: Grants you an Unbound Hour, allowing any activity of your choosing for 1 hour for free.",
+    "icon": "/icons/items/inv_misc_pocketwatch_02.jpg"
+  },
+  "free_4h": {
+    "name": "Chronicle of the Long Evening",
+    "quality": "epic",
+    "value": 936,
+    "amount": 2,
+    "itemLevel": 80,
+    "requiredLevel": 40,
+    "description": "Use: Grants you 4 Unbound Hours, allowing any activity of your choosing for 4 hours for free.",
+    "icon": "/icons/items/inv_misc_pocketwatch_02.jpg"
+  },
+  "free_24h": {
+    "name": "Epoch Hourglass of the Unbound Day",
+    "quality": "legendary",
+    "value": 2142,
+    "amount": 1,
+    "itemLevel": 80,
+    "requiredLevel": 80,
+    "description": "Use: Shatters the shackles of your routine, granting one full day of any activity for free.\n\nYou continue to earn from productive and daily deeds.",
+    "icon": "/icons/items/inv_gizmo_khoriumpowercore.jpg"
+  },
+  "profit_24h_5": {
+    "name": "Scroll of Prosperity I",
+    "quality": "common",
+    "value": 50,
+    "amount": 5,
+    "itemLevel": 50,
+    "requiredLevel": 1,
+    "description": "Use: For 24 hours, gold earned from productive and daily deeds is increased by 5%.",
+    "icon": "/icons/items/inv_scroll_03.jpg"
+  },
+  "profit_24h_10": {
+    "name": "Scroll of Prosperity II",
+    "quality": "uncommon",
+    "value": 100,
+    "amount": 2,
+    "itemLevel": 60,
+    "requiredLevel": 10,
+    "description": "Use: For 24 hours, gold earned from productive and daily deeds is increased by 10%.",
+    "icon": "/icons/items/inv_scroll_03.jpg"
+  },
+  "profit_24h_20": {
+    "name": "Scroll of Prosperity III",
+    "quality": "rare",
+    "value": 200,
+    "amount": 1,
+    "itemLevel": 80,
+    "requiredLevel": 20,
+    "description": "Use: For 24 hours, gold earned from productive and daily deeds is increased by 20%.",
+    "icon": "/icons/items/inv_scroll_03.jpg"
+  },
+  "xp_24h_3": {
+    "name": "Blessing of Wisdom I",
+    "quality": "common",
+    "value": 30,
+    "amount": 5,
+    "itemLevel": 50,
+    "requiredLevel": 1,
+    "description": "Use: For 24 hours, XP earned from productive and daily deeds is increased by 3%.",
+    "icon": "/icons/items/inv_misc_book_03.jpg"
+  },
+  "xp_24h_7": {
+    "name": "Blessing of Wisdom II",
+    "quality": "uncommon",
+    "value": 70,
+    "amount": 2,
+    "itemLevel": 60,
+    "requiredLevel": 10,
+    "description": "Use: For 24 hours, XP earned from productive and daily deeds is increased by 7%.",
+    "icon": "/icons/items/inv_misc_book_04.jpg"
+  },
+  "xp_24h_15": {
+    "name": "Blessing of Wisdom III",
+    "quality": "rare",
+    "value": 150,
+    "amount": 1,
+    "itemLevel": 80,
+    "requiredLevel": 20,
+    "description": "Use: For 24 hours, XP earned from productive and daily deeds is increased by 15%.",
+    "icon": "/icons/items/inv_misc_book_08.jpg"
+  },
+  "start_40": {
+    "name": "Four of Blessings",
+    "quality": "common",
+    "value": 40,
+    "amount": 5,
+    "itemLevel": 50,
+    "requiredLevel": 1,
+    "description": "Use: Blesses your next productive activity lasting at least 30 minutes to grant 40 bonus gold upon completion.",
+    "icon": "/icons/items/inv_misc_ticket_tarot_blessings.jpg"
+  },
+  "start_80": {
+    "name": "Eight of Blessings",
+    "quality": "uncommon",
+    "value": 80,
+    "amount": 2,
+    "itemLevel": 60,
+    "requiredLevel": 10,
+    "description": "Use: Blesses your next productive activity lasting at least 1 hour to grant 80 bonus gold upon completion.",
+    "icon": "/icons/items/inv_misc_ticket_tarot_blessings.jpg"
+  },
+  "start_160": {
+    "name": "Ace of Blessings",
+    "quality": "rare",
+    "value": 160,
+    "amount": 1,
+    "itemLevel": 80,
+    "requiredLevel": 20,
+    "description": "Use: Blesses your next productive activity lasting at least 2 hours to grant 160 bonus gold upon completion.",
+    "icon": "/icons/items/inv_misc_ticket_tarot_blessings.jpg"
+  },
+  "meditate_5min": {
+    "name": "Key to Deep Focus I",
+    "quality": "common",
+    "value": 30,
+    "amount": 5,
+    "itemLevel": 50,
+    "requiredLevel": 1,
+    "description": "Use: Meditate for at least 5 minutes to receive 30 bonus gold.",
+    "icon": "/icons/items/spell_holy_mindsooth.jpg"
+  },
+  "meditate_10min": {
+    "name": "Key to Deep Focus II",
+    "quality": "uncommon",
+    "value": 50,
+    "amount": 2,
+    "itemLevel": 60,
+    "requiredLevel": 10,
+    "description": "Use: Meditate for at least 10 minutes to receive 50 bonus gold.",
+    "icon": "/icons/items/spell_holy_mindsooth.jpg"
+  },
+  "meditate_15min": {
+    "name": "Key to Deep Focus III",
+    "quality": "rare",
+    "value": 70,
+    "amount": 1,
+    "itemLevel": 80,
+    "requiredLevel": 20,
+    "description": "Use: Meditate for at least 15 minutes to receive 70 bonus gold.",
+    "icon": "/icons/items/spell_holy_mindsooth.jpg"
+  },
+  "discount_all_15": {
+    "name": "Mystical Orb",
+    "quality": "uncommon",
+    "value": 59.4,
+    "amount": 5,
+    "itemLevel": 60,
+    "requiredLevel": 10,
+    "description": "Use: For 24 hours, the gold cost of all unproductive activities is reduced by 15%.",
+    "icon": "/icons/items/inv_misc_orb_02.jpg"
+  },
+  "discount_all_30": {
+    "name": "Twilight Orb",
+    "quality": "rare",
+    "value": 194.4,
+    "amount": 4,
+    "itemLevel": 80,
+    "requiredLevel": 20,
+    "description": "Use: For 24 hours, the gold cost of all unproductive activities is reduced by 30%.",
+    "icon": "/icons/items/inv_misc_orb_02.jpg"
+  },
+  "discount_all_50": {
+    "name": "Orb of Deception",
+    "quality": "epic",
+    "value": 630,
+    "amount": 2,
+    "itemLevel": 80,
+    "requiredLevel": 40,
+    "description": "Use: For 24 hours, the gold cost of all unproductive activities is reduced by 50%.",
+    "icon": "/icons/items/inv_misc_orb_02.jpg"
+  }
+}
