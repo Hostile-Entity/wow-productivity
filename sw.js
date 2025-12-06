@@ -1,34 +1,37 @@
-const CACHE = 'wowpro-v1';
+const CACHE_NAME = 'wow-productivity-v2';
+const ASSETS = ['/', '/index.html'];
 
 self.addEventListener('install', (event) => {
-  // Skip waiting so updates apply quickly on refresh
-  self.skipWaiting();
-  event.waitUntil(caches.open(CACHE));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    }),
+  );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    )
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.map((key) => (key === CACHE_NAME ? null : caches.delete(key))),
+        ),
+      ),
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
-
+  const { request } = event;
+  if (request.method !== 'GET') return;
   event.respondWith(
-    caches.match(req).then((cached) => {
-      const fetchPromise = fetch(req)
-        .then((res) => {
-          const clone = res.clone();
-          caches.open(CACHE).then((cache) => cache.put(req, clone));
-          return res;
-        })
-        .catch(() => cached);
-      return cached || fetchPromise;
-    })
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request).then((resp) => {
+        const copy = resp.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        return resp;
+      });
+    }),
   );
 });
