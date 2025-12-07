@@ -67,6 +67,8 @@ const emptyState: GameState = {
   chestLevel: null,
   rewardsInventory: [],
   dailyBalances: [],
+  dailyEarned: [],
+  dailySpent: [],
   activeEffects: [],
   effectsSnapshot: {
     coinsBonusMultiplier: 1,
@@ -85,12 +87,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   async function refresh() {
     const [activities, log] = await Promise.all([getAllActivities(), getAllLog()]);
     const derived = deriveState(activities as any, log as any);
-    setState({
-      loading: false,
-      activities,
-      log,
-      ...derived,
-    });
+      setState({
+        loading: false,
+        activities,
+        log,
+        ...derived,
+      });
   }
 
   useEffect(() => {

@@ -3,6 +3,7 @@ import { useGame } from '../state/GameStore';
 import { rewardLabel, REWARD_META } from '../config/rewards';
 import type { RewardType } from '../types';
 import { EFFECTS_META } from '../config/effects';
+import { assetUrl } from '../utils/assets';
 
 function qualityClass(quality: string): string {
   switch (quality) {
@@ -45,7 +46,7 @@ const RewardTooltip: React.FC<RewardTooltipProps> = ({
         <div className="wow-tooltip-iconwrap">
           <div className={`wow-tooltip-iconinner ${qualityClass(meta.quality)}`}>
             <img
-              src={meta.icon}
+              src={assetUrl(meta.icon)}
               alt={meta.name}
               width={36}
               height={36}
@@ -163,12 +164,12 @@ export const RewardsTab: React.FC = () => {
                   <div className="buff-icon-frame">
                   <img
                     className="buff-icon-img"
-                    src={meta.icon}
+                    src={assetUrl(meta.icon)}
                     alt={meta.name}
                   />
                   <img
                     className="buff-icon-frame-img"
-                    src="/icons/icon_frame.png"
+                    src={assetUrl('icons/icon_frame.png')}
                     alt=""
                     aria-hidden="true"
                   />

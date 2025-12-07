@@ -5,6 +5,7 @@ import { rewardFor } from '../config/activities';
 import { getUnproductiveMinutesSoFar } from '../state/gameLogic';
 import { applyEffectsToReward } from '../config/effects';
 import { REWARD_META } from '../config/rewards';
+import { assetUrl } from '../utils/assets';
 
 
 interface Props {
@@ -464,7 +465,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 >
                   <div className=".wow-tooltip-iconinner">
                       <img
-                        src={meta.icon}
+                        src={assetUrl(meta.icon)}
                         alt={meta.name}
                         width={36}
                         height={36}

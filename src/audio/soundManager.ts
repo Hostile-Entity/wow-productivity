@@ -1,4 +1,5 @@
 // src/audio/soundManager.ts
+import { assetUrl } from '../utils/assets';
 
 // Small helper to avoid errors if browser blocks autoplay.
 function safePlay(audio: HTMLAudioElement | null) {
@@ -8,22 +9,20 @@ function safePlay(audio: HTMLAudioElement | null) {
       // ignore autoplay errors
     });
   }
-
-const base = import.meta.env.BASE_URL || '/';
   
   const tabClickAudio =
   typeof Audio !== 'undefined'
-    ? new Audio(`${base}sounds/iUiInterfaceButtonA.ogg`) // tabs-bar-button only
+    ? new Audio(assetUrl('sounds/iUiInterfaceButtonA.ogg')) // tabs-bar-button only
     : null;
 
     const uiClickAudio =
     typeof Audio !== 'undefined'
-        ? new Audio(`${base}/sounds/uChatScrollButton.ogg`)   // all other buttons
+        ? new Audio(assetUrl('sounds/uChatScrollButton.ogg'))   // all other buttons
         : null;
   
   const levelUpAudio =
     typeof Audio !== 'undefined'
-      ? new Audio(`${base}/sounds/LevelUp.ogg`)
+      ? new Audio(assetUrl('sounds/LevelUp.ogg'))
       : null;
   
   // --- Chest / loot sounds ---
@@ -31,16 +30,16 @@ const base = import.meta.env.BASE_URL || '/';
     // Coins pickup
     const coinsPickupAudio =
     typeof Audio !== 'undefined'
-    ? new Audio(`${base}/sounds/LootCoinSmall.ogg`) // adjust filename if needed
+    ? new Audio(assetUrl('sounds/LootCoinSmall.ogg')) // adjust filename if needed
     : null;
 
     const rewardUseAudio =
     typeof Audio !== 'undefined'
-        ? new Audio(`${base}/sounds/SealofMight.ogg`)
+        ? new Audio(assetUrl('sounds/SealofMight.ogg'))
         : null;
 
     const negativeCoinsSound = typeof Audio !== 'undefined'
-    ? new Audio(`${base}/sounds/NPCBloodElfFemaleNoblePissed08.ogg`)
+    ? new Audio(assetUrl('sounds/NPCBloodElfFemaleNoblePissed08.ogg'))
     : null;
 
     // Volumes

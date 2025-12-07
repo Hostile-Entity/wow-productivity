@@ -16,7 +16,7 @@ interface GameDB extends DBSchema {
 }
 
 const DB_NAME = 'wow-productivity';
-const DB_VERSION = 2;
+const DB_VERSION = 1;
 
 let dbPromise: Promise<IDBPDatabase<GameDB>> | null = null;
 
