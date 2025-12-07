@@ -555,13 +555,14 @@ body {
   position: relative;
   width: 320px;
   padding: 6px 8px;
-  background: transparent;  /* ← transparent tooltip background */
   border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, 0.9);
   box-shadow:
     0 0 18px rgba(0, 0, 0, 0.95),
     0 0 0 1px rgba(200, 155, 60, 0.5);
   text-align: left;
+  background:
+    linear-gradient(180deg, var(--wow-panel) 0%, var(--wow-panel-inner) 100%);
 }
 
 .wow-tooltip-header {

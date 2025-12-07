@@ -145,7 +145,7 @@ export function rewardLabel(type: RewardType): string {
 // ----- Chest level / quality windows -----
 
 export const MIN_CHEST_LEVEL = 2;
-export const MAX_CHEST_LEVEL = 79;
+export const MAX_CHEST_LEVEL = 80;
 
 export const QUALITY_LEVEL_RANGES: Record<RewardQuality, Array<[number, number]>> = {
   common: [[2, 49]],
