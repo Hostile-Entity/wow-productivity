@@ -1,6 +1,7 @@
 // src/components/HeaderBar.tsx
 import React from 'react';
 import { XPBar } from './XPBar';
+import { CoinsDisplay } from './CoinsDisplay'; // ⬅️ import
 
 interface HeaderBarProps {
   level: number;
@@ -24,13 +25,9 @@ export const HeaderBar: React.FC<HeaderBarProps> = ({
         </div>
 
         <div className="header-coins">
-          <span
-            aria-hidden="true"
-            style={{ fontSize: 18, marginRight: 2 }}
-          >
-            🪙
+          <span className="header-coin-value">
+            <CoinsDisplay amount={coins} />
           </span>
-          <span className="header-stat-value">{coins}</span>
         </div>
       </div>
 

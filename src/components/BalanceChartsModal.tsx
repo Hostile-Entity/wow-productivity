@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { DailyBalancePoint } from '../types';
+import { formatCoinsGoldSilver } from '../utils/coins';
 
 interface Props {
   open: boolean;
@@ -268,16 +269,16 @@ export const BalanceChartsModal: React.FC<Props> = ({
                       strokeWidth={1}
                     />
                     <text
-                      x={c.x}
-                      y={c.y - 6}
-                      fontSize={11}
-                      textAnchor="middle"
-                      fill="#f7d87b"
-                      stroke="#555"
-                      strokeWidth={0.6}
-                    >
-                      {c.value}
-                    </text>
+                    x={c.x}
+                    y={c.y - 6}
+                    fontSize={11}
+                    textAnchor="middle"
+                    fill="#f7d87b"
+                    stroke="#555"
+                    strokeWidth={0.6}
+                  >
+                    {formatCoinsGoldSilver(c.value)}
+                  </text>
                   </g>
                 ))}
 
@@ -346,7 +347,7 @@ export const BalanceChartsModal: React.FC<Props> = ({
                         stroke="#555"
                         strokeWidth={0.6}
                         >
-                        {c.value}
+                        {formatCoinsGoldSilver(c.value)}
                         </text>
                     )}
                     </g>
@@ -417,7 +418,7 @@ export const BalanceChartsModal: React.FC<Props> = ({
                         stroke="#555"
                         strokeWidth={0.6}
                       >
-                        {c.value}
+                        {formatCoinsGoldSilver(c.value)}
                       </text>
                     )}
                   </g>

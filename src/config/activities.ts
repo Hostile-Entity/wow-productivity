@@ -35,7 +35,7 @@ interface ActivityRewardsConfig {
 
 const CONFIG = rawConfig as ActivityRewardsConfig;
 
-const XP_PER_MINUTE_PER_GOLD = 5;
+const XP_PER_MINUTE_PER_GOLD = 0.05;
 
 export const DAILY_REWARDS = CONFIG.daily;
 export const PRODUCTIVE_RATES = CONFIG.productive;

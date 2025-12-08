@@ -6,11 +6,24 @@ import { getUnproductiveMinutesSoFar } from '../state/gameLogic';
 import { applyEffectsToReward } from '../config/effects';
 import { REWARD_META } from '../config/rewards';
 import { assetUrl } from '../utils/assets';
+import { CoinsDisplay } from './CoinsDisplay';
 
 
 interface Props {
   open: boolean;
   onClose(): void;
+}
+
+const DURATION_OPTIONS: number[] = Array.from({ length: 6 * 4 + 1 }, (_, i) => i * 15);
+
+function formatDurationLabel(totalMinutes: number): string {
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+
+  if (h === 0 && m === 0) return '0 m';
+  if (h === 0) return `${m} m`;
+  if (m === 0) return `${h} h`;
+  return `${h} h ${m} m`;
 }
 
 export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
@@ -31,6 +44,15 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
     const id = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (open && nameInputRef.current) {
+      // Small timeout helps on mobile when opening modals
+      setTimeout(() => {
+        nameInputRef.current?.focus();
+      }, 0);
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -303,53 +325,35 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
   
             {/* Duration – only for non-daily */}
             {!isDaily && (
-              <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: 'var(--wow-text-muted)',
-                      marginBottom: 2,
-                    }}
-                  >
-                    Hours
-                  </div>
-                  <select
-                    className="select"
-                    value={hours}
-                    onChange={(e) => setHours(Number(e.target.value))}
-                  >
-                    {[0, 1, 2, 3, 4].map((h) => (
-                      <option key={h} value={h}>
-                        {h}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: 12,
-                      color: 'var(--wow-text-muted)',
-                      marginBottom: 2,
-                    }}
-                  >
-                    Minutes
-                  </div>
-                  <select
-                    className="select"
-                    value={mins}
-                    onChange={(e) => setMins(Number(e.target.value))}
-                  >
-                    {[0, 15, 30, 45].map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div style={{ marginBottom: 8 }}>
+              <div
+                style={{
+                  fontSize: 12,
+                  color: 'var(--wow-text-muted)',
+                  marginBottom: 2,
+                }}
+              >
+                Duration
               </div>
-            )}
+              <select
+                className="select"
+                value={String(totalMinutes)} // derived from hours + mins
+                onChange={(e) => {
+                  const total = Number(e.target.value);
+                  const h = Math.floor(total / 60);
+                  const m = total % 60;
+                  setHours(h);
+                  setMins(m);
+                }}
+              >
+                {DURATION_OPTIONS.map((minsTotal) => (
+                  <option key={minsTotal} value={minsTotal}>
+                    {formatDurationLabel(minsTotal)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
   
             {isDaily && (
               <div
@@ -388,13 +392,12 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                   Result
                 </div>
                 <div>
-                  {formatAmount(previewReward.coins, 'coins')}
+                  <CoinsDisplay amount={previewReward.coins} showPlus />
                   {' · '}
                   {formatAmount(previewReward.xp, 'XP')}
                 </div>
               </div>
             )}
-  
             {/* Buttons */}
             <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
               <button

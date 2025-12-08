@@ -3,7 +3,7 @@ import rewardMultipliersJson from '../data/reward_multipliers.json';
 import type { RewardType, LogEntry } from '../types';
 import { EVLedger } from './evLedger';
 
-export const CHEST_COINS = 36;
+export const CHEST_COINS = 3600;
 
 // ----- Per-level reward multiplier -----
 
@@ -227,7 +227,7 @@ function computeBaselineEvForLevel(level: number): {
       perItem.push({ meta, pBase: 0, value: meta.value });
       continue;
     }
-    const pBase = p0 * levelMult;
+    const pBase = Math.min(1, p0 * levelMult);
     perItem.push({ meta, pBase, value: meta.value });
     baselineEv += pBase * meta.value;
   }
@@ -266,9 +266,7 @@ function buildLedgerFromLog(log: LogEntry[]): EVLedger {
       if (lvl > MAX_CHEST_LEVEL) lvl = MAX_CHEST_LEVEL;
 
       const { baselineEv } = computeBaselineEvForLevel(lvl);
-      console.log(`[dev] level=${lvl} baselineEv=${baselineEv}`);
       ledger.target += baselineEv;
-      console.log(`[dev] level=${lvl} target=${ledger.target}`);
 
       // Legacy single-item chests: rewardType on box-opened
       const legacyRewardType = e.rewardType as RewardType | undefined;

@@ -150,8 +150,14 @@ body {
 
 .header-stat-value {
   font-size: 20px;
-  font-weight: 700;
   color: var(--wow-gold);
+  text-shadow:
+    0 0 3px rgba(0, 0, 0, 0.8),
+    0 0 6px rgba(0, 0, 0, 0.9);
+}
+
+.header-coin-value {
+  font-size: 16px;
   text-shadow:
     0 0 3px rgba(0, 0, 0, 0.8),
     0 0 6px rgba(0, 0, 0, 0.9);
@@ -643,4 +649,44 @@ body {
   max-width: 420px;
   z-index: 1002;
   text-align: center;
+}
+
+.coins-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; /* space between sign and each G/S/C block */
+}
+
+.coins-sign {
+  margin-right: 0;
+}
+
+/* Group of one segment (e.g. "12[gold]" or "34[silver]") */
+.coins-chunk {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Inside: number + icon on a shared baseline */
+.coins-segment {
+  display: inline-block; /* <- no flex here */
+}
+
+.coins-icon {
+  display: inline-block;
+  margin-left: 1px;    /* 1 px between number and icon */
+  position: relative;
+  bottom: -1px;
+}
+
+/* Tighter line box around digits */
+.coins-value {
+  line-height: 1;
+  display: inline-block;
+  vertical-align: bottom; /* bottoms want to line up */
+}
+
+/* 1px gap between number and its icon */
+.coins-icon {
+  margin-left: 1px;
 }

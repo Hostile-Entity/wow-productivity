@@ -1,18 +1,18 @@
 {
     "daily": {
-      "minor": { "coins": 50, "xp": 250 },
-      "major": { "coins": 100, "xp": 500 }
+      "minor": { "coins": 5000, "xp": 250 },
+      "major": { "coins": 10000, "xp": 500 }
     },
     "productive": {
-      "gray":   { "coinsPerMinute": 0.8 },
-      "green":  { "coinsPerMinute": 1.0 },
-      "yellow": { "coinsPerMinute": 1.2 },
-      "orange": { "coinsPerMinute": 1.5 },
-      "red":    { "coinsPerMinute": 2.0 }
+      "gray":   { "coinsPerMinute": 80 },
+      "green":  { "coinsPerMinute": 100 },
+      "yellow": { "coinsPerMinute": 120 },
+      "orange": { "coinsPerMinute": 150 },
+      "red":    { "coinsPerMinute": 200 }
     },
     "unproductive": {
-      "idle":      { "coinsPerMinute": -2.0 },
-      "time-sink": { "coinsPerMinute": -3.0 }
+      "idle":      { "coinsPerMinute": -200 },
+      "time-sink": { "coinsPerMinute": -300 }
     },
     "unproductiveScaling": {
       "hourlyIncreaseRate": 0.1
