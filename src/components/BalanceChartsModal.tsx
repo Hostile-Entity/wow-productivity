@@ -274,8 +274,6 @@ export const BalanceChartsModal: React.FC<Props> = ({
                     fontSize={11}
                     textAnchor="middle"
                     fill="#f7d87b"
-                    stroke="#555"
-                    strokeWidth={0.6}
                   >
                     {formatCoinsGoldSilver(c.value)}
                   </text>
@@ -344,8 +342,6 @@ export const BalanceChartsModal: React.FC<Props> = ({
                         fontSize={11}
                         textAnchor="middle"
                         fill="#6df76d"
-                        stroke="#555"
-                        strokeWidth={0.6}
                         >
                         {formatCoinsGoldSilver(c.value)}
                         </text>
@@ -415,8 +411,6 @@ export const BalanceChartsModal: React.FC<Props> = ({
                         fontSize={11}
                         textAnchor="middle"
                         fill="#f06464"
-                        stroke="#555"
-                        strokeWidth={0.6}
                       >
                         {formatCoinsGoldSilver(c.value)}
                       </text>
