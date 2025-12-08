@@ -1,7 +1,8 @@
 {
   "name": "WoW Productivity",
   "short_name": "WoW Prod",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#080402",

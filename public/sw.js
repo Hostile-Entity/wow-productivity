@@ -1,5 +1,12 @@
-const CACHE_NAME = 'wow-productivity-v2';
-const ASSETS = ['/', '/index.html'];
+const CACHE_NAME = 'wow-productivity-v3';
+
+const scopeUrl = new URL(self.registration.scope);
+const BASE_PATH = scopeUrl.pathname;
+
+const ASSETS = [
+  BASE_PATH,
+  `${BASE_PATH}index.html`,
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
