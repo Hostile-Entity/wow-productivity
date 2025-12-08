@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useGame } from '../state/GameStore';
 import { getLedgerSnapshotForLevel, type LedgerSnapshot } from '../config/rewards';
 import { BalanceChartsModal } from './BalanceChartsModal';
@@ -9,8 +9,30 @@ export const SettingsTab: React.FC = () => {
 
   const [chartOpen, setChartOpen] = useState(false);
   const [devSnapshot, setDevSnapshot] = useState<LedgerSnapshot | null>(null);
+  const [swVersion, setSwVersion] = useState<string | null>(null);
 
   const hasDailyBalances = (state.dailyBalances?.length ?? 0) > 0;
+
+  useEffect(() => {
+    async function fetchVersion() {
+      if (!('caches' in window)) return;
+      try {
+        const keys = await caches.keys();
+        // e.g. "wow-productivity-v3"
+        const key = keys.find((k) => k.startsWith('wow-productivity-'));
+        if (!key) return;
+
+        // Extract "v3" part if present
+        const match = key.match(/-v(\d+)/);
+        const version = match ? `v${match[1]}` : key;
+        setSwVersion(version);
+      } catch {
+        // ignore errors – just don't show version
+      }
+    }
+
+    void fetchVersion();
+  }, []);
 
   async function handleExport() {
     const csv = await exportCsv();
@@ -135,6 +157,18 @@ export const SettingsTab: React.FC = () => {
           </button>
         </div>
       </section>
+      {swVersion && (
+        <div
+          style={{
+            marginTop: 8,
+            fontSize: 11,
+            color: 'var(--wow-text-muted)',
+            textAlign: 'right',
+          }}
+        >
+          App version: {swVersion}
+        </div>
+      )}
 
       {/* Chart modal */}
       <BalanceChartsModal

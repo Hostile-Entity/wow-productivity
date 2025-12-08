@@ -22,7 +22,7 @@ export const XPBar: React.FC<XPBarProps> = ({ current, needed }) => {
           style={{ width: `${pct}%` }}
         />
         <div className="xp-bar-label">
-          {`${current} / ${total} XP`}
+          {`XP ${current} / ${total}`}
         </div>
       </div>
     </div>

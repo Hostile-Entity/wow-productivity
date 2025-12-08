@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useGame } from '../state/GameStore';
 import type { Activity, ActivityCategory, ActivityTier, LogEntry } from '../types';
 import { rewardFor } from '../config/activities';
@@ -24,6 +24,8 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
 
   const [now, setNow] = useState<Date>(() => new Date());
   const [openEffectId, setOpenEffectId] = useState<string | null>(null);
+
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 30_000);
@@ -175,6 +177,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
           flexDirection: 'column',
           alignItems: 'center',
           width: '100%',
+          transform: 'translateY(-16vh)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -195,6 +198,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 Name
               </div>
               <input
+                ref={nameInputRef}
                 className="input"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -228,6 +232,9 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                         e.preventDefault();
                         setName(a.name);
                         setNameFocused(false);
+                        if (nameInputRef.current) {
+                          nameInputRef.current.blur();
+                        }
                       }}
                       style={{
                         padding: '4px 6px',
