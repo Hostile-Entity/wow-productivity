@@ -309,7 +309,11 @@ export function rollChestLootForLevel(
   }
 
   const targetThis = computeTargetValueForLevel(level);
-  const mult = ledger.multiplier(baselineEv, targetThis);
+  // ✅ Exception: no ledger multiplier at level 80
+  const mult =
+    level === MAX_CHEST_LEVEL
+      ? 1
+      : ledger.multiplier(baselineEv, targetThis);
 
   const items: RewardType[] = [];
   const qualityBreakdown: Partial<Record<RewardQuality, number>> = {};
