@@ -7,6 +7,7 @@ import { applyEffectsToReward } from '../config/effects';
 import { REWARD_META } from '../config/rewards';
 import { assetUrl } from '../utils/assets';
 import { CoinsDisplay } from './CoinsDisplay';
+import { formatDurationLabel } from '../utils/duration';
 
 
 interface Props {
@@ -15,16 +16,6 @@ interface Props {
 }
 
 const DURATION_OPTIONS: number[] = Array.from({ length: 6 * 4 + 1 }, (_, i) => i * 15);
-
-function formatDurationLabel(totalMinutes: number): string {
-  const h = Math.floor(totalMinutes / 60);
-  const m = totalMinutes % 60;
-
-  if (h === 0 && m === 0) return '0 m';
-  if (h === 0) return `${m} m`;
-  if (m === 0) return `${h} h`;
-  return `${h} h ${m} m`;
-}
 
 export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
   const { state, logActivity } = useGame();
@@ -44,6 +35,19 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
     const id = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(id);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    setName('');
+    setCategory('productive');
+    setTier('green');
+    setHours(1);
+    setMins(0);
+    setNameFocused(false);
+    setOpenEffectId(null);
+    setNow(new Date());
+  }, [open]);
 
   useEffect(() => {
     if (open && nameInputRef.current) {

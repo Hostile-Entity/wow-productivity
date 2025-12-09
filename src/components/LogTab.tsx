@@ -4,6 +4,7 @@ import { useGame } from '../state/GameStore';
 import type { ActivityLogEntry, BoxOpenedLogEntry, LogEntry } from '../types';
 import { CoinsDisplay } from './CoinsDisplay';
 import { formatCoinsShort } from '../utils/coins';
+import { formatDurationLabel } from '../utils/duration';
 
 function describeEntry(e: LogEntry): string {
   // Used only for confirm() – must be plain text
@@ -11,7 +12,15 @@ function describeEntry(e: LogEntry): string {
     const a = e as ActivityLogEntry;
     const coinsText = formatCoinsShort(a.coinsDelta);
     const xpSign = a.xpDelta > 0 ? '+' : '';
-    return `${a.activityName} (${a.category}/${a.tier})  ${coinsText}, ${xpSign}${a.xpDelta}xp`;
+
+    const hasDuration =
+      a.category !== 'daily' && typeof a.minutes === 'number' && a.minutes > 0;
+
+    const durationText = hasDuration
+      ? `, duration ${formatDurationLabel(a.minutes)}`
+      : '';
+
+    return `${a.activityName} (${a.category}/${a.tier})  ${coinsText}, ${xpSign}${a.xpDelta}xp${durationText}`;
   }
   if (e.kind === 'box-opened') {
     const b = e as BoxOpenedLogEntry;
@@ -39,9 +48,20 @@ function renderEntryTitle(e: LogEntry): React.ReactNode {
   if (e.kind === 'activity') {
     const a = e as ActivityLogEntry;
     const xpSign = a.xpDelta > 0 ? '+' : '';
+
+    const hasDuration =
+      a.category !== 'daily' && typeof a.minutes === 'number' && a.minutes > 0;
+
     return (
       <>
-        {a.activityName} ({a.category}/{a.tier}) ·{' '}
+        {a.activityName} ({a.category}/{a.tier})
+        {hasDuration && (
+          <>
+            {' · '}
+            {formatDurationLabel(a.minutes)}
+          </>
+        )}
+        {' · '}
         <CoinsDisplay amount={a.coinsDelta} showPlus />
         {' · '}
         {xpSign}

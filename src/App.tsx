@@ -55,7 +55,9 @@ export const App: React.FC = () => {
           +
         </button>
   
-        <AddActivityDialog open={showAdd} onClose={() => setShowAdd(false)} />
+        {showAdd && (
+          <AddActivityDialog open={true} onClose={() => setShowAdd(false)} />
+        )}
       </div>
     </div>
   );
