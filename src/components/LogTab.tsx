@@ -1,4 +1,3 @@
-// src/components/LogTab.tsx
 import React from 'react';
 import { useGame } from '../state/GameStore';
 import type { ActivityLogEntry, BoxOpenedLogEntry, LogEntry } from '../types';
@@ -7,7 +6,6 @@ import { formatCoinsShort } from '../utils/coins';
 import { formatDurationLabel } from '../utils/duration';
 
 function describeEntry(e: LogEntry): string {
-  // Used only for confirm() – must be plain text
   if (e.kind === 'activity') {
     const a = e as ActivityLogEntry;
     const coinsText = formatCoinsShort(a.coinsDelta);
@@ -43,7 +41,6 @@ function describeEntry(e: LogEntry): string {
   return (e as any).kind;
 }
 
-// JSX version with icons – used in the list UI
 function renderEntryTitle(e: LogEntry): React.ReactNode {
   if (e.kind === 'activity') {
     const a = e as ActivityLogEntry;
@@ -105,15 +102,9 @@ export const LogTab: React.FC = () => {
   const { state, removeLogEntry } = useGame();
 
   return (
-    <div className="panel tab-panel" style={{ padding: 8 }}>
+    <div className="panel tab-panel panel--padded">
       <h2 className="section-title">Log</h2>
-      <div
-        style={{
-          flex: 1,
-          overflow: 'auto',
-          paddingBottom: 80,
-        }}
-      >
+      <div className="scroll-list">
         {[...state.log]
           .sort(
             (a, b) =>
@@ -131,9 +122,8 @@ export const LogTab: React.FC = () => {
                 </div>
               </div>
               <button
-                className="button-ghost"
+                className="button-ghost button-ghost--small"
                 type="button"
-                style={{ fontSize: 10 }}
                 onClick={() => {
                   const ok = confirm(
                     `Delete this log entry?\n\n${describeEntry(e)}`,
@@ -148,7 +138,7 @@ export const LogTab: React.FC = () => {
             </div>
           ))}
         {state.log.length === 0 && (
-          <div style={{ fontSize: 12, color: 'var(--wow-text-muted)' }}>
+          <div className="empty-state">
             Nothing logged yet.
           </div>
         )}

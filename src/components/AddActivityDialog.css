@@ -1,0 +1,163 @@
+/* Fullscreen bottom-sheet backdrop */
+.bottom-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .add-activity-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    transform: translateY(-16vh);
+  }
+  
+  /* Bottom sheet body */
+  .bottom-sheet {
+    width: 95%;
+    max-width: 480px;
+    border-radius: 12px;
+    padding: 10px;
+    max-height: 80vh;
+    overflow: auto;
+    background:
+      radial-gradient(circle at top, rgba(89, 132, 192, 0.35) 0, transparent 60%),
+      linear-gradient(180deg, #151b24 0, #060914 100%);
+    box-shadow:
+      0 0 18px rgba(0, 0, 0, 0.95),
+      0 0 0 1px rgba(0, 0, 0, 0.9);
+  }
+  
+  /* Form layout */
+  .add-activity-field {
+    margin-bottom: 6px;
+    position: relative;
+  }
+  
+  .add-activity-field--duration {
+    margin-bottom: 8px;
+  }
+  
+  .add-activity-row {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  
+  /* Suggestions dropdown */
+  .add-activity-suggestions {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: 2px;
+    max-height: 160px;
+    overflow-y: auto;
+    background: var(--wow-panel-inner);
+    border: 1px solid var(--wow-border-soft);
+    border-radius: 4px;
+    z-index: 20;
+    font-size: 12px;
+  }
+  
+  .add-activity-suggestion-item {
+    padding: 4px 6px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .add-activity-suggestion-meta {
+    font-size: 10px;
+    color: var(--wow-text-muted);
+  }
+  
+  .add-activity-preset-note {
+    font-size: 11px;
+    color: var(--wow-text-muted);
+    margin-top: 2px;
+  }
+  
+  .add-activity-daily-note {
+    font-size: 11px;
+    color: var(--wow-text-muted);
+    margin-bottom: 8px;
+  }
+  
+  /* Reward preview */
+  .reward-preview {
+    margin-bottom: 8px;
+    padding: 6px;
+    border-radius: 4px;
+    border: 1px solid var(--wow-border-soft);
+    background: rgba(0, 0, 0, 0.35);
+    font-size: 12px;
+  }
+  
+  .reward-preview-title {
+    font-size: 11px;
+    color: var(--wow-gold);
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Buttons row */
+  .add-activity-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  
+  .add-activity-action {
+    flex: 1;
+  }
+  
+  /* Active effects footer bar */
+  .active-effects-bar {
+    align-self: stretch;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 12px 10px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+  
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    row-gap: 6px;
+    column-gap: 8px;
+  
+    min-height: 80px;
+    overflow: visible;
+  }
+  
+  .active-effects-item {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .active-effects-icon-button {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  .active-effects-remaining {
+    font-size: 10px;
+    color: var(--wow-text-muted);
+    text-align: center;
+    margin-top: 2px;
+  }
+  

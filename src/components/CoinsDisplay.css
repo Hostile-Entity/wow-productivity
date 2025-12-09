@@ -1,0 +1,35 @@
+.coins-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .coins-sign {
+    margin-right: 0;
+  }
+  
+  /* Group of one segment (e.g. "12[gold]" or "34[silver]") */
+  .coins-chunk {
+    display: inline-flex;
+    align-items: center;
+  }
+  
+  /* Inside: number + icon on a shared baseline */
+  .coins-segment {
+    display: inline-block;
+  }
+  
+  .coins-icon {
+    display: inline-block;
+    margin-left: 1px;
+    position: relative;
+    bottom: -1px;
+  }
+  
+  /* Tighter line box around digits */
+  .coins-value {
+    line-height: 1;
+    display: inline-block;
+    vertical-align: bottom;
+  }
+  

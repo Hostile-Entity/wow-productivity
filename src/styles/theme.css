@@ -44,16 +44,16 @@ body {
 /* Main frame – like a framed WoW panel */
 .app-root {
   margin: 0;
-  height: 100vh;                /* fill viewport */
+  height: 100vh;
   display: flex;
   justify-content: center;
-  padding: 0px;
+  padding: 0;
 }
 
 .app-frame {
   width: 100%;
   max-width: 480px;
-  height: 100%;                 /* use full height of app-root */
+  height: 100%;
   padding: 3px;
   border-radius: 14px;
   position: relative;
@@ -65,9 +65,9 @@ body {
     0 0 40px rgba(0, 0, 0, 0.95);
   border: 2px solid rgba(15, 21, 33, 0.8);
 
-  display: flex;                /* new */
-  flex-direction: column;       /* header + tabs + content */
-  overflow: hidden;             /* page itself doesn’t scroll */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* Thin inner frame line */
@@ -81,10 +81,10 @@ body {
 }
 
 .app-content {
-  flex: 1;                      /* takes remaining height under header+tabs */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;             /* only inner panels scroll */
+  overflow: hidden;
   margin-top: 8px;
 }
 
@@ -109,140 +109,28 @@ body {
     var(--wow-shadow-strong);
 }
 
-/* Header bar (top frame) */
-.header-bar--compact .header-bar-main {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+/* Panel helpers */
+.panel--padded {
+  padding: 8px;
 }
 
-.header-level,
-.header-coins {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
+.panel--padded-lg {
+  padding: 16px;
 }
 
-.header-bar {
-  padding: 8px 10px 6px;
-  background:
-    radial-gradient(circle at top, rgba(108, 150, 214, 0.32) 0, transparent 60%),
-    linear-gradient(180deg, #151b26 0, #090d13 100%);
-  border-radius: 9px;
-  border: 1px solid rgba(0, 0, 0, 0.9);
-  box-shadow:
-    0 0 0 1px rgba(200, 155, 60, 0.4),
-    0 0 18px rgba(0, 0, 0, 0.9);
-}
-
-.header-bar-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
-
-.header-stat-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--wow-text-muted);
-}
-
-.header-stat-value {
-  font-size: 20px;
-  color: var(--wow-gold);
-  text-shadow:
-    0 0 3px rgba(0, 0, 0, 0.8),
-    0 0 6px rgba(0, 0, 0, 0.9);
-}
-
-.header-coin-value {
-  font-size: 16px;
-  text-shadow:
-    0 0 3px rgba(0, 0, 0, 0.8),
-    0 0 6px rgba(0, 0, 0, 0.9);
-}
-
-/* XP bar */
-.xp-bar {
-  margin-top: 6px;
-  padding: 1px;
-  border-radius: 999px;
-  background: radial-gradient(circle at top, #252f49 0, #060915 90%);
-  box-shadow:
-    0 0 0 1px rgba(30, 44, 76, 0.8),
-    0 0 8px rgba(0, 0, 0, 0.9) inset;
-}
-
-.xp-bar-track {
-  position: relative;
-  width: 100%;
-  height: 11px; /* thinner bar */
-  border-radius: 999px;
-  overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.9);
-  background: radial-gradient(circle at top, #090c17 0, #020309 90%);
-}
-
-.xp-bar-fill {
-  height: 100%;
-  background: linear-gradient(to bottom, #0054c2 0%, #00284A 100%);
-}
-
-.xp-bar-label {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  color: #f5f3e7;
-  text-shadow:
-    0 0 3px #000,
-    0 0 6px #000;
-  pointer-events: none;
-  z-index: 2;
-}
-
-/* Tabs */
-.tabs-bar {
+.panel--mt-8 {
   margin-top: 8px;
-  border-radius: 9px;
-  overflow: hidden;
-  background: linear-gradient(180deg, #121623 0, #05060a 100%);
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.9),
-    0 0 10px rgba(0, 0, 0, 0.9);
-  display: flex;
 }
 
-.tabs-bar-button {
+.panel--mt-40 {
+  margin-top: 40px;
+}
+
+/* Generic scroll list used in Activities / Log, etc. */
+.scroll-list {
   flex: 1;
-  padding: 8px 4px;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  background: transparent;
-  color: var(--wow-text-muted);
-  border-right: 1px solid rgba(0, 0, 0, 0.7);
-}
-
-.tabs-bar-button:last-child {
-  border-right: none;
-}
-
-.tabs-bar-button--active {
-  background:
-    radial-gradient(circle at top, rgba(89, 132, 192, 0.4) 0, transparent 60%),
-    linear-gradient(180deg, #1a2233 0, #070910 100%);
-  color: var(--wow-gold);
-  font-weight: 600;
-  box-shadow:
-    inset 0 0 6px rgba(0, 0, 0, 0.7),
-    0 0 8px rgba(93, 151, 255, 0.7);
-  border-bottom: 2px solid var(--wow-gold);
+  overflow: auto;
+  padding-bottom: 80px;
 }
 
 /* Generic list cards */
@@ -266,6 +154,35 @@ body {
 .card-subtitle {
   font-size: 11px;
   color: var(--wow-text-muted);
+}
+
+/* Text helpers */
+.empty-state {
+  font-size: 12px;
+  color: var(--wow-text-muted);
+}
+
+.field-label {
+  font-size: 12px;
+  color: var(--wow-text-muted);
+  margin-bottom: 2px;
+}
+
+.small-muted-text {
+  font-size: 11px;
+  color: var(--wow-text-muted);
+}
+
+.section-title {
+  font-size: 14px;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wow-gold-soft);
+}
+
+.section-title--tight {
+  margin: 0;
 }
 
 /* Buttons */
@@ -310,6 +227,15 @@ body {
   color: var(--wow-gold);
 }
 
+.button-ghost--small {
+  font-size: 10px;
+}
+
+.button-ghost--danger {
+  color: var(--wow-red);
+  border-color: var(--wow-red);
+}
+
 /* Floating bottom button */
 .bottom-cta {
   position: fixed;
@@ -338,164 +264,6 @@ body {
     0 0 16px rgba(247, 216, 123, 0.75);
 }
 
-/* Rewards (buff-style) */
-.buff-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-/* Button itself: no browser border */
-.buff-icon {
-  padding: 0;
-  margin: 0 2px 0 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.buff-icon-frame {
-  position: relative;
-  width: 64px;   /* match your frame PNG size */
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Icon centered under the frame */
-.buff-icon-img {
-  width: 56px;
-  height: 56px;
-  object-fit: cover;
-  border-radius: 3px;
-  z-index: 0;
-}
-
-/* Frame PNG on top */
-.buff-icon-frame-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Stack counter */
-.buff-icon-stack {
-  position: absolute;
-  right: 10px;
-  bottom: 2px;
-  font-size: 18px;
-  color: var(--wow-white);
-  text-shadow:
-    -1px -1px 0 #000,
-     1px -1px 0 #000,
-    -1px  1px 0 #000,
-     1px  1px 0 #000;
-  z-index: 3;
-}
-
-/* Overlay base – we’ll tint this per quality */
-.buff-icon-frame::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 2; /* above frame PNG */
-}
-
-.buff-icon.q2 .buff-icon-frame::after {
-  background-color: var(--wow-green);
-
-  -webkit-mask-image: url('/icons/icon_frame_mask.png');
-  mask-image: url('/icons/icon_frame_mask.png');
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-position: center;
-  mask-position: center;
-}
-
-.buff-icon.q3 .buff-icon-frame::after {
-  background-color: var(--wow-blue);
-
-  -webkit-mask-image: url('/icons/icon_frame_mask.png');
-  mask-image: url('/icons/icon_frame_mask.png');
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-position: center;
-  mask-position: center;
-}
-
-.buff-icon.q4 .buff-icon-frame::after {
-  background-color: var(--wow-purple);
-
-  -webkit-mask-image: url('/icons/icon_frame_mask.png');
-  mask-image: url('/icons/icon_frame_mask.png');
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-position: center;
-  mask-position: center;
-}
-
-.buff-icon.q5 .buff-icon-frame::after {
-  background-color: var(--wow-legendary);
-
-  -webkit-mask-image: url('/icons/icon_frame_mask.png');
-  mask-image: url('/icons/icon_frame_mask.png');
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-position: center;
-  mask-position: center;
-}
-
-
-.buff-icon-label {
-  position: absolute;
-  bottom: -14px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 10px;
-  color: var(--wow-text-muted);
-}
-
-/* Modal / bottom sheet */
-.bottom-sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.75);
-  display: flex;
-  justify-content: center;
-  align-items: center;   /* center vertically instead of flex-end */
-  z-index: 999;
-}
-
-
-.bottom-sheet {
-  width: 95%;
-  max-width: 480px;
-  border-radius: 12px;   /* full rounded dialog */
-  padding: 10px;
-  max-height: 80vh;
-  overflow: auto;
-  background:
-    radial-gradient(circle at top, rgba(89, 132, 192, 0.35) 0, transparent 60%),
-    linear-gradient(180deg, #151b24 0, #060914 100%);
-  box-shadow:
-    0 0 18px rgba(0, 0, 0, 0.95),
-    0 0 0 1px rgba(0, 0, 0, 0.9);
-}
-
-
 /* Inputs */
 .input,
 .select {
@@ -515,15 +283,7 @@ body {
   box-shadow: 0 0 8px rgba(100, 150, 220, 0.6);
 }
 
-/* Small headings */
-.section-title {
-  font-size: 14px;
-  margin: 0 0 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--wow-gold-soft);
-}
-
+/* Qualities (text color) */
 .q2 {
   color: var(--wow-green);
 }
@@ -538,155 +298,4 @@ body {
 
 .q5 {
   color: var(--wow-legendary); /* legendary orange */
-}
-
-.tooltip-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1001;
-}
-
-.wow-tooltip {
-  position: relative;
-  width: 320px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.9);
-  box-shadow:
-    0 0 18px rgba(0, 0, 0, 0.95),
-    0 0 0 1px rgba(200, 155, 60, 0.5);
-  text-align: left;
-  background: #0a0806;
-}
-
-.wow-tooltip-header {
-  margin-bottom: 2px;  /* small gap between name/ilvl and body */
-}
-
-.wow-tooltip-wrapper {
-  position: relative;
-  display: inline-block;
-}
-
-.wow-tooltip-iconwrap {
-  position: absolute;
-  bottom: 100%;
-  left: 0;                 /* align with tooltip left edge */
-  margin-bottom: 4px;      /* tiny gap */
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.9);
-  box-shadow:
-    0 0 0 1px rgba(200, 155, 60, 0.4),
-    0 0 10px rgba(0, 0, 0, 0.9);
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25) 0, transparent 55%),
-    radial-gradient(circle at bottom, rgba(54, 88, 154, 0.9) 0, rgba(3, 8, 20, 0.9) 65%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.wow-tooltip-iconinner {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--wow-border-soft);
-  border-radius: 4px;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.wow-tooltip-iconinner.q2 { border-color: var(--wow-green); }
-.wow-tooltip-iconinner.q3 { border-color: var(--wow-blue); }
-.wow-tooltip-iconinner.q4 { border-color: var(--wow-purple); }
-.wow-tooltip-iconinner.q5 { border-color: var(--wow-legendary); }
-
-.wow-tooltip-text {
-  flex: 1;
-}
-
-.wow-tooltip-name {
-  font-size: 14px;
-  font-weight: normal;
-  margin: 0 0 2px 0;
-}
-
-.wow-tooltip-line {
-  font-size: 12px;
-  margin: 0;
-}
-
-.wow-tooltip-ilvl {
-  color: var(--wow-yellow);
-}
-
-.wow-tooltip-body > div {
-  margin: 0;           /* no extra gap between lines */
-}
-
-.wow-tooltip-use {
-  color: var(--wow-green);
-}
-
-.wow-tooltip-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.tooltip-use-btn {
-  position: fixed;
-  bottom: 16px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  max-width: 420px;
-  z-index: 1002;
-  text-align: center;
-}
-
-.coins-display {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px; /* space between sign and each G/S/C block */
-}
-
-.coins-sign {
-  margin-right: 0;
-}
-
-/* Group of one segment (e.g. "12[gold]" or "34[silver]") */
-.coins-chunk {
-  display: inline-flex;
-  align-items: center;
-}
-
-/* Inside: number + icon on a shared baseline */
-.coins-segment {
-  display: inline-block; /* <- no flex here */
-}
-
-.coins-icon {
-  display: inline-block;
-  margin-left: 1px;    /* 1 px between number and icon */
-  position: relative;
-  bottom: -1px;
-}
-
-/* Tighter line box around digits */
-.coins-value {
-  line-height: 1;
-  display: inline-block;
-  vertical-align: bottom; /* bottoms want to line up */
-}
-
-/* 1px gap between number and its icon */
-.coins-icon {
-  margin-left: 1px;
 }

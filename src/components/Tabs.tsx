@@ -1,4 +1,5 @@
 import React from 'react';
+import './Tabs.css';
 
 export type TabId = 'activities' | 'log' | 'rewards' | 'settings';
 

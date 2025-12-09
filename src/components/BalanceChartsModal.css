@@ -1,0 +1,45 @@
+.balance-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .balance-modal-panel {
+    padding: 8px;
+    max-width: 100%;
+    width: 95%;
+    max-height: 80%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .balance-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  
+  .balance-modal-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px;
+    border-radius: 6px;
+    border: 1px solid var(--wow-border-soft);
+    background: var(--wow-panel-inner);
+  }
+  
+  .balance-chart-title {
+    font-size: 11px;
+    margin-bottom: 2px;
+    color: var(--wow-text-muted);
+  }
+  
+  .balance-chart-title--spaced {
+    margin-top: 8px;
+  }
+  

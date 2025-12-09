@@ -1,0 +1,130 @@
+.tooltip-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+  }
+  
+  .wow-tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .wow-tooltip-iconwrap {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 4px;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(200, 155, 60, 0.4),
+      0 0 10px rgba(0, 0, 0, 0.9);
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25) 0, transparent 55%),
+      radial-gradient(circle at bottom, rgba(54, 88, 154, 0.9) 0, rgba(3, 8, 20, 0.9) 65%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .wow-tooltip-iconinner {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--wow-border-soft);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .wow-tooltip-iconinner.q2 { border-color: var(--wow-green); }
+  .wow-tooltip-iconinner.q3 { border-color: var(--wow-blue); }
+  .wow-tooltip-iconinner.q4 { border-color: var(--wow-purple); }
+  .wow-tooltip-iconinner.q5 { border-color: var(--wow-legendary); }
+  
+  .wow-tooltip {
+    position: relative;
+    width: 320px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.9);
+    box-shadow:
+      0 0 18px rgba(0, 0, 0, 0.95),
+      0 0 0 1px rgba(200, 155, 60, 0.5);
+    text-align: left;
+    background: #0a0806;
+  }
+  
+  .wow-tooltip-header {
+    margin-bottom: 2px;
+  }
+  
+  .wow-tooltip-text {
+    flex: 1;
+  }
+  
+  .wow-tooltip-name {
+    font-size: 14px;
+    font-weight: normal;
+    margin: 0 0 2px 0;
+  }
+  
+  .wow-tooltip-line {
+    font-size: 12px;
+    margin: 0;
+  }
+  
+  .wow-tooltip-ilvl {
+    color: var(--wow-yellow);
+  }
+  
+  .wow-tooltip-body {
+    font-size: 12px;
+  }
+  
+  .wow-tooltip-body > div {
+    margin: 0;
+  }
+  
+  .wow-tooltip-use {
+    color: var(--wow-green);
+  }
+  
+  .wow-tooltip-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  
+  /* "Use" button in reward tooltip */
+  .tooltip-use-btn {
+    position: fixed;
+    bottom: 16px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: 420px;
+    z-index: 1002;
+    text-align: center;
+  }
+  
+  /* Extra helper for AddActivity effect tooltip */
+  .active-effects-tooltip {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 4px;
+    z-index: 30;
+    max-width: 240px;
+  }
+  
+  .wow-tooltip-title {
+    margin-bottom: 4px;
+  }
+  

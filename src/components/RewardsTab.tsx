@@ -1,4 +1,7 @@
+// src/components/RewardsTab.tsx
 import React, { useState } from 'react';
+import './RewardsTab.css';
+import './Tooltip.css';
 import { useGame } from '../state/GameStore';
 import { rewardLabel, REWARD_META } from '../config/rewards';
 import type { RewardType } from '../types';
@@ -38,7 +41,6 @@ const RewardTooltip: React.FC<RewardTooltipProps> = ({
 
   return (
     <div className="tooltip-backdrop" onClick={onClose}>
-      {/* Icon + tooltip are one aligned block; clicking inside shouldn't close */}
       <div
         className="wow-tooltip-wrapper"
         onClick={(e) => e.stopPropagation()}
@@ -70,7 +72,6 @@ const RewardTooltip: React.FC<RewardTooltipProps> = ({
         </div>
       </div>
 
-      {/* Big Use button at bottom */}
       <button
         type="button"
         className="button-primary tooltip-use-btn"
@@ -83,54 +84,39 @@ const RewardTooltip: React.FC<RewardTooltipProps> = ({
   );
 };
 
-
 export const RewardsTab: React.FC = () => {
   const { state, openChest, useReward } = useGame();
   const [tooltipType, setTooltipType] = useState<RewardType | null>(null);
 
   function getUseBlockReason(type: RewardType): string | null {
     const effectMeta = EFFECTS_META[type];
-    if (!effectMeta) return null; // not a timed effect, always usable
+    if (!effectMeta) return null;
 
     const sameKindActive = state.activeEffects.some(
       (e) => e.kind === effectMeta.kind,
     );
     if (!sameKindActive) return null;
-      return 'Already in effect';
+    return 'Already in effect';
   }
 
   function handleUse(type: RewardType) {
     const reason = getUseBlockReason(type);
-    if (reason) return; // safety: don’t fire useReward if blocked
+    if (reason) return;
     useReward(type);
     setTooltipType(null);
   }
 
   const blockReason = tooltipType ? getUseBlockReason(tooltipType) : null;
 
-
   return (
     <>
-      <div className="panel" style={{ padding: 8, marginTop: 8 }}>
+      <div className="panel panel--padded panel--mt-8">
         <h2 className="section-title">Rewards</h2>
 
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 8,
-          }}
-        >
+        <div className="rewards-header">
           <div>
             <div className="card-subtitle">Chests available</div>
-            <div
-              style={{
-                fontSize: 18,
-                color: 'var(--wow-gold)',
-                textShadow: '0 0 5px #000',
-              }}
-            >
+            <div className="rewards-chests-count">
               {state.boxesAvailable}
             </div>
           </div>
@@ -146,12 +132,12 @@ export const RewardsTab: React.FC = () => {
           </button>
         </div>
 
-        <div style={{ marginTop: 8 }}>
-          <div className="card-subtitle" style={{ marginBottom: 4 }}>
+        <div className="rewards-section">
+          <div className="card-subtitle rewards-active-subtitle">
             Active rewards
           </div>
           <div className="buff-strip">
-          {state.rewardsInventory.map((r) => {
+            {state.rewardsInventory.map((r) => {
               const meta = REWARD_META[r.type];
               return (
                 <button
@@ -162,26 +148,26 @@ export const RewardsTab: React.FC = () => {
                   title={rewardLabel(r.type)}
                 >
                   <div className="buff-icon-frame">
-                  <img
-                    className="buff-icon-img"
-                    src={assetUrl(meta.icon)}
-                    alt={meta.name}
-                  />
-                  <img
-                    className="buff-icon-frame-img"
-                    src={assetUrl('icons/icon_frame.png')}
-                    alt=""
-                    aria-hidden="true"
-                  />
-                  {r.count > 1 && (
-                    <span className="buff-icon-stack">{r.count}</span>
-                  )}
-                </div>
+                    <img
+                      className="buff-icon-img"
+                      src={assetUrl(meta.icon)}
+                      alt={meta.name}
+                    />
+                    <img
+                      className="buff-icon-frame-img"
+                      src={assetUrl('icons/icon_frame.png')}
+                      alt=""
+                      aria-hidden="true"
+                    />
+                    {r.count > 1 && (
+                      <span className="buff-icon-stack">{r.count}</span>
+                    )}
+                  </div>
                 </button>
               );
             })}
             {state.rewardsInventory.length === 0 && (
-              <div style={{ fontSize: 12, color: 'var(--wow-text-muted)' }}>
+              <div className="empty-state">
                 No rewards yet. Level up and open chests.
               </div>
             )}

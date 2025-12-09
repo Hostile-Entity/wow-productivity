@@ -1,11 +1,10 @@
-// src/components/CoinsDisplay.tsx
 import React from 'react';
+import './CoinsDisplay.css';
 import { coinsToGSC } from '../utils/coins';
 import { assetUrl } from '../utils/assets';
 
 interface CoinsDisplayProps {
   amount: number;
-  /** If true, positive values get a "+" sign. Default: false */
   showPlus?: boolean;
 }
 
@@ -20,10 +19,8 @@ export const CoinsDisplay: React.FC<CoinsDisplayProps> = ({
   const isNegative = amount < 0;
   const sign = isNegative ? '-' : showPlus && amount > 0 ? '+' : '';
   const { gold, silver, copper } = coinsToGSC(amount);
-  console.log(amount)
-  console.log(coinsToGSC(amount))
 
-  const segments: React.ReactNode[] = []; // ← changed
+  const segments: React.ReactNode[] = [];
 
   if (gold > 0) {
     segments.push(
@@ -65,7 +62,6 @@ export const CoinsDisplay: React.FC<CoinsDisplayProps> = ({
     );
   }
 
-  // Copper always shown
   segments.push(
     <span key="c" className="coins-segment">
       <span className="coins-value">{copper}</span>

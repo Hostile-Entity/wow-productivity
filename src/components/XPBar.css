@@ -1,0 +1,40 @@
+.xp-bar {
+    margin-top: 6px;
+    padding: 1px;
+    border-radius: 999px;
+    background: radial-gradient(circle at top, #252f49 0, #060915 90%);
+    box-shadow:
+      0 0 0 1px rgba(30, 44, 76, 0.8),
+      0 0 8px rgba(0, 0, 0, 0.9) inset;
+  }
+  
+  .xp-bar-track {
+    position: relative;
+    width: 100%;
+    height: 11px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.9);
+    background: radial-gradient(circle at top, #090c17 0, #020309 90%);
+  }
+  
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(to bottom, #0054c2 0%, #00284a 100%);
+  }
+  
+  .xp-bar-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #f5f3e7;
+    text-shadow:
+      0 0 3px #000,
+      0 0 6px #000;
+    pointer-events: none;
+    z-index: 2;
+  }
+  

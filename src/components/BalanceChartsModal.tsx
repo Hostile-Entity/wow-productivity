@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import './BalanceChartsModal.css';
 import type { DailyBalancePoint } from '../types';
 import { formatCoinsGoldSilver } from '../utils/coins';
 
@@ -167,38 +168,15 @@ export const BalanceChartsModal: React.FC<Props> = ({
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1000,
-        background: 'rgba(0, 0, 0, 0.75)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      className="balance-modal-backdrop"
       onClick={onClose}
     >
       <div
-        className="panel"
-        style={{
-          padding: 8,
-          maxWidth: '100%',
-          width: '95%',
-          maxHeight: '80%',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
+        className="panel balance-modal-panel"
         onClick={(e) => e.stopPropagation()}
       >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 4,
-          }}
-        >
-          <div className="section-title" style={{ margin: 0 }}>
+        <div className="balance-modal-header">
+          <div className="section-title section-title--tight">
             Balance history (last 30 days)
           </div>
           <button className="button-ghost" type="button" onClick={onClose}>
@@ -208,34 +186,16 @@ export const BalanceChartsModal: React.FC<Props> = ({
 
         <div
           ref={scrollRef}
-          style={{
-            overflowX: 'auto',
-            overflowY: 'hidden',
-            padding: 4,
-            borderRadius: 6,
-            border: '1px solid var(--wow-border-soft)',
-            background: 'var(--wow-panel-inner)',
-          }}
+          className="balance-modal-scroll"
         >
           {!hasData ? (
-            <div
-              style={{
-                fontSize: 11,
-                color: 'var(--wow-text-muted)',
-              }}
-            >
+            <div className="small-muted-text">
               No days logged yet.
             </div>
           ) : (
             <div style={{ minWidth: width }}>
               {/* 1) Balance chart */}
-              <div
-                style={{
-                  fontSize: 11,
-                  marginBottom: 2,
-                  color: 'var(--wow-text-muted)',
-                }}
-              >
+              <div className="balance-chart-title">
                 Balance (last 30 days)
               </div>
               <svg width={width} height={height} style={{ display: 'block' }}>
@@ -269,14 +229,14 @@ export const BalanceChartsModal: React.FC<Props> = ({
                       strokeWidth={1}
                     />
                     <text
-                    x={c.x}
-                    y={c.y - 6}
-                    fontSize={11}
-                    textAnchor="middle"
-                    fill="#f7d87b"
-                  >
-                    {formatCoinsGoldSilver(c.value)}
-                  </text>
+                      x={c.x}
+                      y={c.y - 6}
+                      fontSize={11}
+                      textAnchor="middle"
+                      fill="#f7d87b"
+                    >
+                      {formatCoinsGoldSilver(c.value)}
+                    </text>
                   </g>
                 ))}
 
@@ -295,83 +255,69 @@ export const BalanceChartsModal: React.FC<Props> = ({
               </svg>
 
               {/* 2) Daily earned chart */}
-              <div
-                style={{
-                    fontSize: 11,
-                    marginTop: 8,
-                    marginBottom: 2,
-                    color: 'var(--wow-text-muted)',
-                }}
-                >
+              <div className="balance-chart-title balance-chart-title--spaced">
                 Daily earned (last 30 days)
-                </div>
-                <svg width={width} height={height} style={{ display: 'block' }}>
+              </div>
+              <svg width={width} height={height} style={{ display: 'block' }}>
                 <line
-                    x1={0}
-                    x2={width}
-                    y1={height - 30}
-                    y2={height - 30}
-                    stroke="#555"
-                    strokeWidth={1}
+                  x1={0}
+                  x2={width}
+                  y1={height - 30}
+                  y2={height - 30}
+                  stroke="#555"
+                  strokeWidth={1}
                 />
 
                 {earnedPath && (
-                    <path
+                  <path
                     d={earnedPath}
                     fill="none"
                     stroke="#6df76d"
                     strokeWidth={0.5}
                     strokeLinejoin="round"
-                    />
+                  />
                 )}
 
                 {earnedCircles.map((c, idx) => (
-                    <g key={idx}>
+                  <g key={idx}>
                     <circle
-                        cx={c.x}
-                        cy={c.y}
-                        r={3}
-                        fill="#6df76d"
-                        stroke="#000"
-                        strokeWidth={1}
+                      cx={c.x}
+                      cy={c.y}
+                      r={3}
+                      fill="#6df76d"
+                      stroke="#000"
+                      strokeWidth={1}
                     />
                     {c.value !== 0 && (
-                        <text
+                      <text
                         x={c.x}
                         y={c.y - 6}
                         fontSize={11}
                         textAnchor="middle"
                         fill="#6df76d"
-                        >
+                      >
                         {formatCoinsGoldSilver(c.value)}
-                        </text>
+                      </text>
                     )}
-                    </g>
+                  </g>
                 ))}
 
                 {labels.map((l, idx) => (
-                    <text
+                  <text
                     key={idx}
                     x={l.x}
                     y={height - 16}
                     fontSize={9}
                     textAnchor="middle"
                     fill="var(--wow-text-muted)"
-                    >
+                  >
                     {l.label}
-                    </text>
+                  </text>
                 ))}
-                </svg>
+              </svg>
 
               {/* 3) Daily spent chart */}
-              <div
-                style={{
-                  fontSize: 11,
-                  marginTop: 8,
-                  marginBottom: 2,
-                  color: 'var(--wow-text-muted)',
-                }}
-              >
+              <div className="balance-chart-title balance-chart-title--spaced">
                 Daily spent (last 30 days)
               </div>
               <svg width={width} height={height} style={{ display: 'block' }}>

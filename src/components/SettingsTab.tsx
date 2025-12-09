@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import './SettingsTab.css';
 import { useGame } from '../state/GameStore';
 import { getLedgerSnapshotForLevel, type LedgerSnapshot } from '../config/rewards';
 import { BalanceChartsModal } from './BalanceChartsModal';
@@ -18,16 +19,14 @@ export const SettingsTab: React.FC = () => {
       if (!('caches' in window)) return;
       try {
         const keys = await caches.keys();
-        // e.g. "wow-productivity-v3"
         const key = keys.find((k) => k.startsWith('wow-productivity-'));
         if (!key) return;
 
-        // Extract "v3" part if present
         const match = key.match(/-v(\d+)/);
         const version = match ? `v${match[1]}` : key;
         setSwVersion(version);
       } catch {
-        // ignore errors – just don't show version
+        // ignore
       }
     }
 
@@ -66,58 +65,37 @@ export const SettingsTab: React.FC = () => {
   }
 
   return (
-    <div className="panel" style={{ padding: 8, marginTop: 8 }}>
+    <div className="panel panel--padded panel--mt-8">
       <h2 className="section-title">Settings</h2>
 
       {/* Statistics / chart button */}
-      <section style={{ marginBottom: 8 }}>
-        <div style={{ fontSize: 13, marginBottom: 4 }}>Statistics</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <section className="settings-section">
+        <div className="settings-section-title">Statistics</div>
+        <div className="settings-button-column">
           <button
-            className="button-ghost"
+            className="button-ghost settings-wide-button"
             type="button"
             onClick={() => setChartOpen(true)}
             disabled={!hasDailyBalances}
-            style={{
-              width: '100%',
-              textAlign: 'center',
-            }}
           >
             Balance chart (last 30 days)
           </button>
 
           <button
-            className="button-ghost"
+            className="button-ghost settings-wide-button"
             type="button"
             onClick={handleShowDevValues}
-            style={{
-              width: '100%',
-              textAlign: 'center',
-            }}
           >
             Show EV ledger (dev)
           </button>
         </div>
         {!hasDailyBalances && (
-          <div
-            style={{
-              fontSize: 11,
-              color: 'var(--wow-text-muted)',
-              marginTop: 4,
-            }}
-          >
+          <div className="small-muted-text settings-note">
             No days logged yet.
           </div>
         )}
         {devSnapshot && (
-          <div
-            style={{
-              fontSize: 11,
-              color: 'var(--wow-text-muted)',
-              marginTop: 4,
-              lineHeight: 1.4,
-            }}
-          >
+          <div className="small-muted-text settings-dev-snapshot">
             <div>Level: {devSnapshot.level ?? '-'}</div>
             <div>EV multiplier: {devSnapshot.multiplier.toFixed(3)}</div>
             <div>Paid: {devSnapshot.paid.toFixed(1)}</div>
@@ -127,10 +105,14 @@ export const SettingsTab: React.FC = () => {
       </section>
 
       {/* Data section */}
-      <section style={{ marginBottom: 8 }}>
-        <div style={{ fontSize: 13, marginBottom: 4 }}>Data</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <button className="button-ghost" type="button" onClick={handleExport}>
+      <section className="settings-section">
+        <div className="settings-section-title">Data</div>
+        <div className="settings-button-column">
+          <button
+            className="button-ghost"
+            type="button"
+            onClick={handleExport}
+          >
             Export log as CSV
           </button>
           <button
@@ -148,29 +130,21 @@ export const SettingsTab: React.FC = () => {
             onChange={handleImport}
           />
           <button
-            className="button-ghost"
+            className="button-ghost button-ghost--danger"
             type="button"
-            style={{ color: 'var(--wow-red)', borderColor: 'var(--wow-red)' }}
             onClick={confirmWipe}
           >
             Delete database
           </button>
         </div>
       </section>
+
       {swVersion && (
-        <div
-          style={{
-            marginTop: 8,
-            fontSize: 11,
-            color: 'var(--wow-text-muted)',
-            textAlign: 'right',
-          }}
-        >
+        <div className="small-muted-text settings-version">
           App version: {swVersion}
         </div>
       )}
 
-      {/* Chart modal */}
       <BalanceChartsModal
         open={chartOpen}
         onClose={() => setChartOpen(false)}

@@ -1,0 +1,44 @@
+.activities-form {
+    margin-bottom: 8px;
+  }
+  
+  .activities-form-row {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  
+  .activities-submit {
+    width: 100%;
+  }
+  
+  .activities-category-block {
+    margin-bottom: 8px;
+  }
+  
+  .activities-category-header {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--wow-text-muted);
+    padding: 4px 2px;
+    border-bottom: 1px solid var(--wow-border-soft);
+    margin-bottom: 4px;
+  }
+  
+  .activities-tier-block {
+    margin-bottom: 4px;
+  }
+  
+  .activities-tier-label {
+    font-size: 11px;
+    color: var(--wow-text-muted);
+    padding: 2px 2px;
+  }
+  
+  .activities-item-panel {
+    padding: 6px;
+    margin-bottom: 2px;
+    border-color: var(--wow-border-soft);
+  }
+  

@@ -1,0 +1,34 @@
+.settings-section {
+    margin-bottom: 8px;
+  }
+  
+  .settings-section-title {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+  
+  .settings-button-column {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .settings-wide-button {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .settings-note {
+    margin-top: 4px;
+  }
+  
+  .settings-dev-snapshot {
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+  
+  .settings-version {
+    margin-top: 8px;
+    text-align: right;
+  }
+  

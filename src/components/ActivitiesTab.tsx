@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './ActivitiesTab.css';
 import { useGame } from '../state/GameStore';
 import type { ActivityCategory, ActivityTier } from '../types';
 
@@ -28,17 +29,15 @@ export const ActivitiesTab: React.FC = () => {
     setCategory(newCategory);
 
     const allowedTiers = tiersForCategory[newCategory];
-    // Always snap to the first valid tier for that category
     setTier(allowedTiers[0]);
   }
 
   return (
-    <div className="panel tab-panel" style={{ padding: 8 }}>
+    <div className="panel tab-panel panel--padded">
       <h2 className="section-title">Activities</h2>
 
-      {/* Add new activity */}
-      <form onSubmit={handleAdd} style={{ marginBottom: 8 }}>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+      <form onSubmit={handleAdd} className="activities-form">
+        <div className="activities-form-row">
           <input
             className="input"
             value={name}
@@ -46,7 +45,7 @@ export const ActivitiesTab: React.FC = () => {
             placeholder="New activity"
           />
         </div>
-        <div style={{ display: 'flex', gap: 4, marginBottom: 4 }}>
+        <div className="activities-form-row">
           <select
             className="select"
             value={category}
@@ -68,21 +67,14 @@ export const ActivitiesTab: React.FC = () => {
             ))}
           </select>
         </div>
-        <button className="button-primary" type="submit" style={{ width: '100%' }}>
+        <button className="button-primary activities-submit" type="submit">
           Add activity
         </button>
       </form>
 
-      {/* Activities list – grouped by category & tier */}
-      <div
-        style={{
-          flex: 1,
-          overflow: 'auto',
-          paddingBottom: 80, // keep last items above the + button
-        }}
-      >
+      <div className="scroll-list">
         {state.activities.length === 0 && (
-          <div style={{ fontSize: 12, color: 'var(--wow-text-muted)' }}>
+          <div className="empty-state">
             No activities yet. Add some above.
           </div>
         )}
@@ -109,7 +101,7 @@ export const ActivitiesTab: React.FC = () => {
           });
 
           const tiersInCat = Array.from(
-            new Set(sortedCatItems.map((a) => a.tier as ActivityTier))
+            new Set(sortedCatItems.map((a) => a.tier as ActivityTier)),
           ).sort((ta, tb) => {
             const ia = tierOrder.indexOf(ta);
             const ib = tierOrder.indexOf(tb);
@@ -120,19 +112,8 @@ export const ActivitiesTab: React.FC = () => {
           });
 
           return (
-            <div key={cat} style={{ marginBottom: 8 }}>
-              {/* Category header tag */}
-              <div
-                style={{
-                  fontSize: 11,
-                  textTransform: 'uppercase',
-                  letterSpacing: 0.5,
-                  color: 'var(--wow-text-muted)',
-                  padding: '4px 2px',
-                  borderBottom: '1px solid var(--wow-border-soft)',
-                  marginBottom: 4,
-                }}
-              >
+            <div key={cat} className="activities-category-block">
+              <div className="activities-category-header">
                 {cat} ({catItems.length})
               </div>
 
@@ -141,26 +122,15 @@ export const ActivitiesTab: React.FC = () => {
                 if (!tierItems.length) return null;
 
                 return (
-                  <div key={`${cat}-${t}`} style={{ marginBottom: 4 }}>
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color: 'var(--wow-text-muted)',
-                        padding: '2px 2px',
-                      }}
-                    >
+                  <div key={`${cat}-${t}`} className="activities-tier-block">
+                    <div className="activities-tier-label">
                       {t}
                     </div>
 
                     {tierItems.map((a) => (
                       <div
                         key={a.id}
-                        className="panel"
-                        style={{
-                          padding: 6,
-                          marginBottom: 2,
-                          borderColor: 'var(--wow-border-soft)',
-                        }}
+                        className="panel activities-item-panel"
                       >
                         <div className="card-row">
                           <div>
@@ -170,19 +140,19 @@ export const ActivitiesTab: React.FC = () => {
                             </div>
                           </div>
                           <button
-                          className="button-ghost"
-                          type="button"
-                          onClick={() => {
-                            const ok = confirm(
-                              `Delete this activity?\n\n${a.name} (${a.category}/${a.tier})`
-                            );
-                            if (ok) {
-                              void removeActivity(a.id);
-                            }
-                          }}
-                        >
-                          Delete
-                        </button>
+                            className="button-ghost"
+                            type="button"
+                            onClick={() => {
+                              const ok = confirm(
+                                `Delete this activity?\n\n${a.name} (${a.category}/${a.tier})`,
+                              );
+                              if (ok) {
+                                void removeActivity(a.id);
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                     ))}

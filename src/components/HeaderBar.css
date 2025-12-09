@@ -1,0 +1,53 @@
+.header-bar--compact .header-bar-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .header-level,
+  .header-coins {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  
+  .header-bar {
+    padding: 8px 10px 6px;
+    background:
+      radial-gradient(circle at top, rgba(108, 150, 214, 0.32) 0, transparent 60%),
+      linear-gradient(180deg, #151b26 0, #090d13 100%);
+    border-radius: 9px;
+    border: 1px solid rgba(0, 0, 0, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(200, 155, 60, 0.4),
+      0 0 18px rgba(0, 0, 0, 0.9);
+  }
+  
+  .header-bar-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  
+  .header-stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--wow-text-muted);
+  }
+  
+  .header-stat-value {
+    font-size: 20px;
+    color: var(--wow-gold);
+    text-shadow:
+      0 0 3px rgba(0, 0, 0, 0.8),
+      0 0 6px rgba(0, 0, 0, 0.9);
+  }
+  
+  .header-coin-value {
+    font-size: 16px;
+    text-shadow:
+      0 0 3px rgba(0, 0, 0, 0.8),
+      0 0 6px rgba(0, 0, 0, 0.9);
+  }
+  

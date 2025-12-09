@@ -1,7 +1,7 @@
-// src/components/HeaderBar.tsx
 import React from 'react';
+import './HeaderBar.css';
 import { XPBar } from './XPBar';
-import { CoinsDisplay } from './CoinsDisplay'; // ⬅️ import
+import { CoinsDisplay } from './CoinsDisplay';
 
 interface HeaderBarProps {
   level: number;

@@ -1,4 +1,5 @@
 import React from 'react';
+import './XPBar.css';
 
 interface XPBarProps {
   current: number;
@@ -8,7 +9,6 @@ interface XPBarProps {
 export const XPBar: React.FC<XPBarProps> = ({ current, needed }) => {
   const isMax = needed === 0 && current > 0;
 
-  // At max level, treat total as "current" so label is e.g. "3845 / 3845 XP"
   const rawTotal = current + needed;
   const total = isMax ? current : rawTotal;
 

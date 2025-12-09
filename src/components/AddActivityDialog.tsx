@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import './AddActivityDialog.css';
+import './Tooltip.css';
 import { useGame } from '../state/GameStore';
 import type { Activity, ActivityCategory, ActivityTier, LogEntry } from '../types';
 import { rewardFor } from '../config/activities';
@@ -8,7 +10,6 @@ import { REWARD_META } from '../config/rewards';
 import { assetUrl } from '../utils/assets';
 import { CoinsDisplay } from './CoinsDisplay';
 import { formatDurationLabel } from '../utils/duration';
-
 
 interface Props {
   open: boolean;
@@ -51,7 +52,6 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
 
   useEffect(() => {
     if (open && nameInputRef.current) {
-      // Small timeout helps on mobile when opening modals
       setTimeout(() => {
         nameInputRef.current?.focus();
       }, 0);
@@ -70,7 +70,6 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
 
   const trimmedName = name.trim();
 
-  // Always keep activities sorted alphabetically by name
   const sortedActivities = [...activities].sort((a, b) =>
     a.name.localeCompare(b.name),
   );
@@ -78,7 +77,6 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
   let suggestions: Activity[] = [];
 
   if (trimmedName.length === 0) {
-    // Empty input: show first N alphabetically
     suggestions = sortedActivities.slice(0, 8);
   } else {
     const q = trimmedName.toLowerCase();
@@ -139,7 +137,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
   function formatRemainingTime(expiresAt: string): string {
     const diffMs = new Date(expiresAt).getTime() - now.getTime();
     if (diffMs <= 0) return '0m';
-  
+
     const totalMinutes = Math.round(diffMs / 60000);
     if (totalMinutes >= 60) {
       const hours = Math.floor(totalMinutes / 60);
@@ -196,33 +194,17 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
       className="bottom-sheet-backdrop"
       onClick={onClose}
     >
-      {/* Inner wrapper so we control layout (column) */}
       <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          width: '100%',
-          transform: 'translateY(-16vh)',
-        }}
+        className="add-activity-wrapper"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Bottom sheet itself */}
         <div className="bottom-sheet">
           <h2 className="section-title">Log completed activity</h2>
-  
+
           <form onSubmit={handleSubmit}>
             {/* Name */}
-            <div style={{ marginBottom: 6, position: 'relative' }}>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: 'var(--wow-text-muted)',
-                  marginBottom: 2,
-                }}
-              >
-                Name
-              </div>
+            <div className="add-activity-field">
+              <div className="field-label">Name</div>
               <input
                 ref={nameInputRef}
                 className="input"
@@ -233,24 +215,9 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 placeholder="Type activity name..."
                 autoComplete="off"
               />
-  
+
               {nameFocused && suggestions.length > 0 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: '100%',
-                    marginTop: 2,
-                    maxHeight: 160,
-                    overflowY: 'auto',
-                    background: 'var(--wow-panel-inner)',
-                    border: '1px solid var(--wow-border-soft)',
-                    borderRadius: 4,
-                    zIndex: 20,
-                    fontSize: 12,
-                  }}
-                >
+                <div className="add-activity-suggestions">
                   {suggestions.map((a) => (
                     <div
                       key={a.id}
@@ -262,42 +229,26 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                           nameInputRef.current.blur();
                         }
                       }}
-                      style={{
-                        padding: '4px 6px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        flexDirection: 'column',
-                      }}
+                      className="add-activity-suggestion-item"
                     >
                       <span>{a.name}</span>
-                      <span
-                        style={{
-                          fontSize: 10,
-                          color: 'var(--wow-text-muted)',
-                        }}
-                      >
+                      <span className="add-activity-suggestion-meta">
                         {a.category}/{a.tier}
                       </span>
                     </div>
                   ))}
                 </div>
               )}
-  
+
               {matchedActivity && (
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: 'var(--wow-text-muted)',
-                    marginTop: 2,
-                  }}
-                >
+                <div className="add-activity-preset-note">
                   Using preset: {matchedActivity.category}/{matchedActivity.tier}
                 </div>
               )}
             </div>
-  
+
             {/* Category & tier */}
-            <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
+            <div className="add-activity-row">
               <select
                 className="select"
                 value={uiCategory}
@@ -310,7 +261,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 <option value="productive">Productive</option>
                 <option value="unproductive">Unproductive</option>
               </select>
-  
+
               <select
                 className="select"
                 value={uiTier}
@@ -326,73 +277,41 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 ))}
               </select>
             </div>
-  
+
             {/* Duration – only for non-daily */}
             {!isDaily && (
-            <div style={{ marginBottom: 8 }}>
-              <div
-                style={{
-                  fontSize: 12,
-                  color: 'var(--wow-text-muted)',
-                  marginBottom: 2,
-                }}
-              >
-                Duration
+              <div className="add-activity-field add-activity-field--duration">
+                <div className="field-label">Duration</div>
+                <select
+                  className="select"
+                  value={String(totalMinutes)}
+                  onChange={(e) => {
+                    const total = Number(e.target.value);
+                    const h = Math.floor(total / 60);
+                    const m = total % 60;
+                    setHours(h);
+                    setMins(m);
+                  }}
+                >
+                  {DURATION_OPTIONS.map((minsTotal) => (
+                    <option key={minsTotal} value={minsTotal}>
+                      {formatDurationLabel(minsTotal)}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <select
-                className="select"
-                value={String(totalMinutes)} // derived from hours + mins
-                onChange={(e) => {
-                  const total = Number(e.target.value);
-                  const h = Math.floor(total / 60);
-                  const m = total % 60;
-                  setHours(h);
-                  setMins(m);
-                }}
-              >
-                {DURATION_OPTIONS.map((minsTotal) => (
-                  <option key={minsTotal} value={minsTotal}>
-                    {formatDurationLabel(minsTotal)}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-  
+            )}
+
             {isDaily && (
-              <div
-                style={{
-                  fontSize: 11,
-                  color: 'var(--wow-text-muted)',
-                  marginBottom: 8,
-                }}
-              >
+              <div className="add-activity-daily-note">
                 Daily activities give a fixed reward. No time needed.
               </div>
             )}
-  
+
             {/* Reward preview */}
             {previewReward && (
-              <div
-                className="reward-preview"
-                style={{
-                  marginBottom: 8,
-                  padding: 6,
-                  borderRadius: 4,
-                  border: '1px solid var(--wow-border-soft)',
-                  background: 'rgba(0, 0, 0, 0.35)',
-                  fontSize: 12,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: 'var(--wow-gold)',
-                    marginBottom: 2,
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                  }}
-                >
+              <div className="reward-preview">
+                <div className="reward-preview-title">
                   Result
                 </div>
                 <div>
@@ -402,20 +321,19 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 </div>
               </div>
             )}
+
             {/* Buttons */}
-            <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+            <div className="add-activity-actions">
               <button
                 type="button"
-                className="button-ghost"
-                style={{ flex: 1 }}
+                className="button-ghost add-activity-action"
                 onClick={onClose}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="button-primary"
-                style={{ flex: 1 }}
+                className="button-primary add-activity-action"
                 disabled={hasDurationError || !hasName}
               >
                 Log activity
@@ -423,113 +341,56 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
             </div>
           </form>
         </div>
-  
+
         {/* Effects BELOW the bottom-sheet */}
-      {state.activeEffects.length > 0 && (
-        <div
-          className="active-effects-bar"
-          style={{
-            alignSelf: 'stretch',
-            width: '100%',
-            boxSizing: 'border-box',
-            padding: '6px 12px 10px',
-            marginTop: 8,
-            marginBottom: 8,
+        {state.activeEffects.length > 0 && (
+          <div className="active-effects-bar">
+            {state.activeEffects.map((eff) => {
+              const meta = REWARD_META[eff.rewardType];
+              const remaining = formatRemainingTime(eff.expiresAt);
+              const isOpen = openEffectId === eff.id;
 
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            alignItems: 'center',
-            alignContent: 'center',
-            rowGap: 6,
-            columnGap: 8,
-
-            // enough room for at least 2 icon rows
-            minHeight: 80,
-            overflow: 'visible',
-          }}
-        >
-          {state.activeEffects.map((eff) => {
-            const meta = REWARD_META[eff.rewardType];
-            const remaining = formatRemainingTime(eff.expiresAt);
-            const isOpen = openEffectId === eff.id;
-
-            return (
-              <div
-                key={eff.id}
-                style={{
-                  position: 'relative',
-                  flex: '0 0 auto',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={() =>
-                    setOpenEffectId(isOpen ? null : eff.id)
-                  }
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    padding: 0,
-                    cursor: 'pointer',
-                  }}
+              return (
+                <div
+                  key={eff.id}
+                  className="active-effects-item"
                 >
-                  <div className=".wow-tooltip-iconinner">
+                  <button
+                    type="button"
+                    className="active-effects-icon-button"
+                    onClick={() =>
+                      setOpenEffectId(isOpen ? null : eff.id)
+                    }
+                  >
+                    <div className=".wow-tooltip-iconinner">
                       <img
                         src={assetUrl(meta.icon)}
                         alt={meta.name}
                         width={36}
                         height={36}
                       />
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 10,
-                      color: 'var(--wow-text-muted)',
-                      textAlign: 'center',
-                      marginTop: 2,
-                    }}
-                  >
-                    {remaining}
-                  </div>
-                </button>
+                    </div>
+                    <div className="active-effects-remaining">
+                      {remaining}
+                    </div>
+                  </button>
 
-                {isOpen && (
-                  <div
-                    className="wow-tooltip"
-                    style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      marginTop: 4,
-                      zIndex: 30,
-                      maxWidth: 240,
-                    }}
-                  >
-                    <div
-                      className="wow-tooltip-title"
-                      style={{ marginBottom: 4 }}
-                    >
-                      {meta.name}
+                  {isOpen && (
+                    <div className="wow-tooltip active-effects-tooltip">
+                      <div className="wow-tooltip-title">
+                        {meta.name}
+                      </div>
+                      <div className="wow-tooltip-body">
+                        {meta.useDescription}
+                      </div>
                     </div>
-                    <div
-                      className="wow-tooltip-body"
-                      style={{ fontSize: 12 }}
-                    >
-                      {meta.useDescription}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
-  </div>
-);
+  );
 };

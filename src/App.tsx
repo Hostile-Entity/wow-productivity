@@ -18,7 +18,7 @@ export const App: React.FC = () => {
     return (
       <div className="app-root">
         <div className="app-frame">
-          <div className="panel" style={{ padding: 16, marginTop: 40 }}>
+          <div className="panel panel--padded-lg panel--mt-40">
             Loading...
           </div>
         </div>
@@ -35,17 +35,16 @@ export const App: React.FC = () => {
           xpIntoLevel={state.xpIntoLevel}
           xpToNext={state.xpToNextLevel}
         />
-  
+
         <Tabs active={tab} onChange={setTab} />
-  
-        {/* NEW wrapper */}
+
         <div className="app-content">
           {tab === 'activities' && <ActivitiesTab />}
           {tab === 'log' && <LogTab />}
           {tab === 'rewards' && <RewardsTab />}
           {tab === 'settings' && <SettingsTab />}
         </div>
-  
+
         <button
           className="button-primary bottom-cta fab-plus"
           type="button"
@@ -54,7 +53,7 @@ export const App: React.FC = () => {
         >
           +
         </button>
-  
+
         {showAdd && (
           <AddActivityDialog open={true} onClose={() => setShowAdd(false)} />
         )}
