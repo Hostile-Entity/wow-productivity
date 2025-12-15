@@ -18,6 +18,39 @@ interface Props {
 
 const DURATION_OPTIONS: number[] = Array.from({ length: 6 * 4 + 1 }, (_, i) => i * 15);
 
+function pad2(n: number) {
+  return String(n).padStart(2, '0');
+}
+
+function toDatetimeLocalValue(d: Date): string {
+  const y = d.getFullYear();
+  const m = pad2(d.getMonth() + 1);
+  const day = pad2(d.getDate());
+  const hh = pad2(d.getHours());
+  const mm = pad2(d.getMinutes());
+  return `${y}-${m}-${day}T${hh}:${mm}`;
+}
+
+function fromDatetimeLocalValue(v: string): Date {
+  const [datePart, timePart] = v.split('T');
+  if (!datePart || !timePart) return new Date(NaN);
+
+  const [yy, mm, dd] = datePart.split('-').map((x) => Number(x));
+  const [hh, min] = timePart.split(':').map((x) => Number(x));
+
+  if (
+    !Number.isFinite(yy) ||
+    !Number.isFinite(mm) ||
+    !Number.isFinite(dd) ||
+    !Number.isFinite(hh) ||
+    !Number.isFinite(min)
+  ) {
+    return new Date(NaN);
+  }
+
+  return new Date(yy, mm - 1, dd, hh, min, 0, 0);
+}
+
 export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
   const { state, logActivity } = useGame();
   const [name, setName] = useState('');
@@ -29,6 +62,10 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
 
   const [now, setNow] = useState<Date>(() => new Date());
   const [openEffectId, setOpenEffectId] = useState<string | null>(null);
+
+  // When picker (datetime-local uses a string value)
+  const [whenValue, setWhenValue] = useState<string>(() => toDatetimeLocalValue(new Date()));
+  const [whenTouched, setWhenTouched] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -47,8 +84,20 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
     setMins(0);
     setNameFocused(false);
     setOpenEffectId(null);
-    setNow(new Date());
+
+    const freshNow = new Date();
+    setNow(freshNow);
+
+    setWhenValue(toDatetimeLocalValue(freshNow));
+    setWhenTouched(false);
   }, [open]);
+
+  // Keep default "when" = current time while open, until user edits it
+  useEffect(() => {
+    if (!open) return;
+    if (whenTouched) return;
+    setWhenValue(toDatetimeLocalValue(now));
+  }, [now, open, whenTouched]);
 
   useEffect(() => {
     if (open && nameInputRef.current) {
@@ -115,9 +164,13 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
   const hasName = trimmedName.length > 0;
   const canShowPreview = hasName && !hasDurationError;
 
+  const selectedWhenRaw = fromDatetimeLocalValue(whenValue);
+  const selectedWhen =
+    Number.isFinite(selectedWhenRaw.getTime()) ? selectedWhenRaw : now;
+
   const unproductiveMinutesSoFar =
     effectiveCategory === 'unproductive'
-      ? getUnproductiveMinutesSoFar(state.log as LogEntry[], now)
+      ? getUnproductiveMinutesSoFar(state.log as LogEntry[], selectedWhen)
       : 0;
 
   const baseReward = canShowPreview
@@ -129,7 +182,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
   const previewReward = baseReward
     ? applyEffectsToReward(baseReward, {
         category: effectiveCategory,
-        when: now,
+        when: selectedWhen,
         log: state.log as LogEntry[],
       })
     : null;
@@ -173,7 +226,8 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
       return;
     }
 
-    const when = new Date();
+    // Use selected date/time (allows past logging)
+    const when = selectedWhen;
 
     await logActivity({
       activity,
@@ -308,6 +362,21 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
               </div>
             )}
 
+            {/* When (last choice) */}
+            <div className="add-activity-field add-activity-field--when">
+              <div className="field-label">When</div>
+              <input
+                className="input datetime-input"
+                type="datetime-local"
+                value={whenValue}
+                max={toDatetimeLocalValue(now)}
+                onChange={(e) => {
+                  setWhenValue(e.target.value);
+                  setWhenTouched(true);
+                }}
+              />
+            </div>
+
             {/* Reward preview */}
             {previewReward && (
               <div className="reward-preview">
@@ -321,6 +390,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 </div>
               </div>
             )}
+
 
             {/* Buttons */}
             <div className="add-activity-actions">

@@ -25,6 +25,7 @@ import {
   playNegativeCoinsSound,
   playInstantRewardCoinsSound,
   playRewardUseSound,
+  setSfxMasterVolume01,
 } from '../audio/soundManager';
 
 type NewActivityPayload = {
@@ -39,6 +40,19 @@ type LogActivityPayload = {
   minutes: number;
 };
 
+const VOLUME_KEY = 'wow-productivity-volume';
+
+function clampVolume(v: number) {
+  return Math.max(0, Math.min(100, v));
+}
+
+function loadVolume(): number {
+  if (typeof window === 'undefined') return 100;
+  const raw = window.localStorage.getItem(VOLUME_KEY);
+  const n = Number(raw);
+  return Number.isFinite(n) ? clampVolume(n) : 100;
+}
+
 interface GameContextValue {
   state: GameState;
   addOrUpdateActivity(payload: NewActivityPayload, id?: string): Promise<void>;
@@ -50,6 +64,7 @@ interface GameContextValue {
   exportCsv(): Promise<string>;
   importCsv(csv: string): Promise<void>;
   wipeAll(): Promise<void>;
+  setSoundVolume(v: number): void;
 }
 
 const GameContext = createContext<GameContextValue | null>(null);
@@ -75,6 +90,7 @@ const emptyState: GameState = {
     xpBonusMultiplier: 1,
     unproductiveDiscountMultiplier: 1,
   },
+  soundVolume: loadVolume(),
 };
 
 export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -87,12 +103,14 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   async function refresh() {
     const [activities, log] = await Promise.all([getAllActivities(), getAllLog()]);
     const derived = deriveState(activities as any, log as any);
-      setState({
-        loading: false,
-        activities,
-        log,
-        ...derived,
-      });
+
+    setState((prev) => ({
+      ...prev,
+      loading: false,
+      activities,
+      log,
+      ...derived,
+    }));
   }
 
   useEffect(() => {
@@ -134,13 +152,23 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // --- Level-up sound watcher ---
   useEffect(() => {
     const prev = prevStateRef.current;
+  
+    // First time we become "loaded" => mark init + prime prev, but do NOT play anything.
+    if (!didInitRef.current) {
+      if (!state.loading) {
+        didInitRef.current = true;
+        prevStateRef.current = state;
+      }
+      return;
+    }
+  
     if (prev) {
       // Level up sound
       if (state.level > prev.level) {
         playLevelUpSound();
       }
-  
-      // Money just went negative: play once
+    
+      // Money just went negative: play once on crossing >=0 -> <0
       if (prev.coins >= 0 && state.coins < 0) {
         playNegativeCoinsSound();
       }
@@ -148,6 +176,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
     prevStateRef.current = state;
   }, [state]);
+
+  // --- Volume sync to soundManager ---
+  useEffect(() => {
+    setSfxMasterVolume01((state.soundVolume ?? 100) / 100);
+  }, [state.soundVolume]);
 
   async function addOrUpdateActivity(
     payload: NewActivityPayload,
@@ -383,6 +416,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await refresh();
   }
 
+  function setSoundVolume(v: number) {
+    const vol = clampVolume(v);
+    setState((prev) => ({ ...prev, soundVolume: vol }));
+    try {
+      window.localStorage.setItem(VOLUME_KEY, String(vol));
+    } catch {
+      // ignore
+    }
+  }
+
   const value: GameContextValue = {
     state,
     addOrUpdateActivity,
@@ -394,6 +437,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     exportCsv,
     importCsv,
     wipeAll,
+    setSoundVolume,
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

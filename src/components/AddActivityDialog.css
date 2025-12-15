@@ -161,3 +161,12 @@
     margin-top: 2px;
   }
   
+  .add-activity-field--when .datetime-input {
+    width: 100%;
+  }
+  
+  .add-activity-when-note {
+    font-size: 11px;
+    color: var(--wow-text-muted);
+    margin-top: 2px;
+  }

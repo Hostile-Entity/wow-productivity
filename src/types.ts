@@ -115,4 +115,5 @@ export interface GameState {
   dailySpent: DailyBalancePoint[];
   activeEffects: ActiveEffect[];
   effectsSnapshot: EffectsSnapshot;
+  soundVolume: number;
 }
