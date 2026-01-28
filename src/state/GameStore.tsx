@@ -26,6 +26,7 @@ import {
   playInstantRewardCoinsSound,
   playRewardUseSound,
   setSfxMasterVolume01,
+  primeAudio,
 } from '../audio/soundManager';
 
 type NewActivityPayload = {
@@ -99,6 +100,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Track previous level for level-up sound
   const prevStateRef = useRef<GameState | null>(null);
   const didInitRef = useRef(false);
+  const didPrimeAudioRef = useRef(false);
 
   async function refresh() {
     const [activities, log] = await Promise.all([getAllActivities(), getAllLog()]);
@@ -115,6 +117,22 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     refresh();
+  }, []);
+
+  // --- Prime audio on first user gesture ---
+  useEffect(() => {
+    function primeOnGesture() {
+      if (didPrimeAudioRef.current) return;
+      didPrimeAudioRef.current = true;
+      void primeAudio();
+    }
+
+    document.addEventListener('pointerdown', primeOnGesture, true);
+    document.addEventListener('keydown', primeOnGesture, true);
+    return () => {
+      document.removeEventListener('pointerdown', primeOnGesture, true);
+      document.removeEventListener('keydown', primeOnGesture, true);
+    };
   }, []);
 
   // --- Global click sound handler ---
