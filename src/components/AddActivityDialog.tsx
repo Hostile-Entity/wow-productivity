@@ -14,6 +14,9 @@ import { formatDurationLabel } from '../utils/duration';
 interface Props {
   open: boolean;
   onClose(): void;
+  whenValue: string;
+  whenTouched: boolean;
+  onWhenDraftChange(value: string, touched: boolean): void;
 }
 
 const DURATION_OPTIONS: number[] = Array.from({ length: 6 * 4 + 1 }, (_, i) => i * 15);
@@ -51,7 +54,13 @@ function fromDatetimeLocalValue(v: string): Date {
   return new Date(yy, mm - 1, dd, hh, min, 0, 0);
 }
 
-export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
+export const AddActivityDialog: React.FC<Props> = ({
+  open,
+  onClose,
+  whenValue,
+  whenTouched,
+  onWhenDraftChange,
+}) => {
   const { state, logActivity } = useGame();
   const [name, setName] = useState('');
   const [category, setCategory] = useState<ActivityCategory>('productive');
@@ -62,10 +71,6 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
 
   const [now, setNow] = useState<Date>(() => new Date());
   const [openEffectId, setOpenEffectId] = useState<string | null>(null);
-
-  // When picker (datetime-local uses a string value)
-  const [whenValue, setWhenValue] = useState<string>(() => toDatetimeLocalValue(new Date()));
-  const [whenTouched, setWhenTouched] = useState(false);
 
   const nameInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -87,17 +92,14 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
 
     const freshNow = new Date();
     setNow(freshNow);
-
-    setWhenValue(toDatetimeLocalValue(freshNow));
-    setWhenTouched(false);
   }, [open]);
 
   // Keep default "when" = current time while open, until user edits it
   useEffect(() => {
     if (!open) return;
     if (whenTouched) return;
-    setWhenValue(toDatetimeLocalValue(now));
-  }, [now, open, whenTouched]);
+    onWhenDraftChange(toDatetimeLocalValue(now), false);
+  }, [now, open, onWhenDraftChange, whenTouched]);
 
   useEffect(() => {
     if (open && nameInputRef.current) {
@@ -371,8 +373,7 @@ export const AddActivityDialog: React.FC<Props> = ({ open, onClose }) => {
                 value={whenValue}
                 max={toDatetimeLocalValue(now)}
                 onChange={(e) => {
-                  setWhenValue(e.target.value);
-                  setWhenTouched(true);
+                  onWhenDraftChange(e.target.value, true);
                 }}
               />
             </div>

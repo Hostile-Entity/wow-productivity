@@ -148,7 +148,9 @@ export const LogTab: React.FC = () => {
               <>
                 {showDayHeader && <div className="log-day-header">{day}</div>}
 
-                <div className="card-row">
+                <div
+                  className={`card-row log-card-row${index === entries.length - 1 ? ' log-card-row--last' : ''}`}
+                >
                   <div>
                     <div className="card-title">{renderEntryTitle(e)}</div>
                     <div className="card-subtitle">{formatTimeOnly(e.timestamp)}</div>
