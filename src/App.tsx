@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import './styles/theme.css';
 import { useGame } from './state/GameStore';
 import { HeaderBar } from './components/HeaderBar';
@@ -9,10 +9,32 @@ import { RewardsTab } from './components/RewardsTab';
 import { SettingsTab } from './components/SettingsTab';
 import { AddActivityDialog } from './components/AddActivityDialog';
 
+function pad2(n: number) {
+  return String(n).padStart(2, '0');
+}
+
+function toDatetimeLocalValue(d: Date): string {
+  const y = d.getFullYear();
+  const m = pad2(d.getMonth() + 1);
+  const day = pad2(d.getDate());
+  const hh = pad2(d.getHours());
+  const mm = pad2(d.getMinutes());
+  return `${y}-${m}-${day}T${hh}:${mm}`;
+}
+
 export const App: React.FC = () => {
   const { state } = useGame();
   const [tab, setTab] = useState<TabId>('activities');
   const [showAdd, setShowAdd] = useState(false);
+  const [addDraftWhenValue, setAddDraftWhenValue] = useState<string>(() =>
+    toDatetimeLocalValue(new Date()),
+  );
+  const [addDraftWhenTouched, setAddDraftWhenTouched] = useState(false);
+
+  const handleWhenDraftChange = useCallback((value: string, touched: boolean) => {
+    setAddDraftWhenValue(value);
+    setAddDraftWhenTouched(touched);
+  }, []);
 
   if (state.loading) {
     return (
@@ -55,7 +77,13 @@ export const App: React.FC = () => {
         </button>
 
         {showAdd && (
-          <AddActivityDialog open={true} onClose={() => setShowAdd(false)} />
+          <AddActivityDialog
+            open={true}
+            onClose={() => setShowAdd(false)}
+            whenValue={addDraftWhenValue}
+            whenTouched={addDraftWhenTouched}
+            onWhenDraftChange={handleWhenDraftChange}
+          />
         )}
       </div>
     </div>
