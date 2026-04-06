@@ -72,6 +72,18 @@ export const BalanceChartsModal: React.FC<Props> = ({
     return { x, y, value: p.balance };
   });
 
+  const formatDayLabel = (raw: string): string => {
+    const isoDate = raw.slice(0, 10);
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
+    if (!match) return raw;
+
+    const month = Number(match[2]);
+    const day = Number(match[3]);
+    if (!Number.isFinite(month) || !Number.isFinite(day)) return raw;
+
+    return `${month}/${day}`;
+  };
+
   const labels = balancePoints.map((p, idx) => {
     const x =
       balancePoints.length === 1
@@ -82,13 +94,7 @@ export const BalanceChartsModal: React.FC<Props> = ({
     let label = raw;
 
     if (raw && raw.length >= 10) {
-      const d = new Date(raw);
-      if (!isNaN(d.getTime())) {
-        label = d.toLocaleDateString(undefined, {
-          month: 'numeric',
-          day: 'numeric',
-        });
-      }
+      label = formatDayLabel(raw);
     }
 
     if (!label) {
