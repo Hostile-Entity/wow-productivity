@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wow-productivity-v22';
+const CACHE_NAME = 'wow-productivity-v24';
 
 const scopeUrl = new URL(self.registration.scope);
 const BASE_PATH = scopeUrl.pathname;
@@ -11,12 +11,6 @@ function isSameOrigin(url) {
 
 function isServiceWorkerRequest(url) {
   return url.pathname.endsWith('/sw.js');
-}
-
-function isNavigationRequest(request) {
-  if (request.mode === 'navigate') return true;
-  const accept = request.headers.get('accept') || '';
-  return accept.includes('text/html');
 }
 
 function canRuntimeCache(url) {
@@ -35,25 +29,6 @@ async function cacheAppShell(cache) {
       }
     }),
   );
-}
-
-async function networkFirst(request) {
-  const cache = await caches.open(CACHE_NAME);
-
-  try {
-    const response = await fetch(request);
-    if (response.ok && canRuntimeCache(new URL(request.url))) {
-      await cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    const cached = await cache.match(request);
-    if (cached) return cached;
-
-    const fallback = await cache.match(`${BASE_PATH}index.html`);
-    if (fallback) return fallback;
-    throw new Error('Network unavailable and no cached page.');
-  }
 }
 
 async function cacheFirst(request) {
@@ -121,11 +96,6 @@ self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(request.url);
   if (isServiceWorkerRequest(requestUrl)) {
     event.respondWith(fetch(request));
-    return;
-  }
-
-  if (isNavigationRequest(request)) {
-    event.respondWith(networkFirst(request));
     return;
   }
 
