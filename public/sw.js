@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wow-productivity-v25';
+const CACHE_NAME = 'wow-productivity-v26';
 
 const scopeUrl = new URL(self.registration.scope);
 const BASE_PATH = scopeUrl.pathname;
@@ -11,6 +11,12 @@ function isSameOrigin(url) {
 
 function isServiceWorkerRequest(url) {
   return url.pathname.endsWith('/sw.js');
+}
+
+function isNavigationRequest(request) {
+  if (request.mode === 'navigate') return true;
+  const accept = request.headers.get('accept') || '';
+  return accept.includes('text/html');
 }
 
 function canRuntimeCache(url) {
@@ -36,11 +42,22 @@ async function cacheFirst(request) {
   const cached = await cache.match(request);
   if (cached) return cached;
 
-  const response = await fetch(request);
-  if (response.ok && canRuntimeCache(new URL(request.url))) {
-    await cache.put(request, response.clone());
+  try {
+    const response = await fetch(request);
+    if (response.ok && canRuntimeCache(new URL(request.url))) {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    if (isNavigationRequest(request)) {
+      const appShell =
+        (await cache.match(`${BASE_PATH}index.html`)) ??
+        (await cache.match(BASE_PATH));
+      if (appShell) return appShell;
+    }
+
+    throw new Error('Offline and not cached');
   }
-  return response;
 }
 
 self.addEventListener('install', (event) => {
