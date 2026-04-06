@@ -9,6 +9,14 @@ function clampVolume(v: number) {
   return Math.max(0, Math.min(100, v));
 }
 
+function parseVersionNumber(input: string | null): number | null {
+  if (!input) return null;
+  const match = input.match(/v(\d+)/i);
+  if (!match) return null;
+  const n = Number(match[1]);
+  return Number.isFinite(n) ? n : null;
+}
+
 const VolumePopup: React.FC<{
   open: boolean;
   value: number;
@@ -54,31 +62,53 @@ export const SettingsTab: React.FC = () => {
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [devSnapshot, setDevSnapshot] = useState<LedgerSnapshot | null>(null);
   const [swVersion, setSwVersion] = useState<string | null>('detecting...');
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
 
   const hasDailyBalances = (state.dailyBalances?.length ?? 0) > 0;
 
   useEffect(() => {
     let cancelled = false;
 
+    async function resolveCachedVersion(): Promise<string | null> {
+      if (!('caches' in window)) return null;
+      const keys = await caches.keys();
+      const versions = keys
+        .map((k) => {
+          const m = k.match(/^wow-productivity-v(\d+)$/i);
+          return m ? Number(m[1]) : null;
+        })
+        .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+
+      if (versions.length === 0) return null;
+      return `v${Math.max(...versions)}`;
+    }
+
     async function fetchVersion() {
       try {
+        const cachedVersion = await resolveCachedVersion();
+        if (!cancelled && cachedVersion) {
+          setSwVersion(cachedVersion);
+        }
+
         const resp = await fetch(
           `${import.meta.env.BASE_URL}sw.js?ts=${Date.now()}`,
           { cache: 'no-store' },
         );
         if (!resp.ok) {
-          if (!cancelled) setSwVersion('unknown');
+          if (!cancelled && !cachedVersion) setSwVersion('unknown');
           return;
         }
 
         const code = await resp.text();
         const match = code.match(/wow-productivity-v(\d+)/i);
         if (!cancelled) {
-          setSwVersion(match ? `v${match[1]}` : 'unknown');
+          setSwVersion(match ? `v${match[1]}` : (cachedVersion ?? 'unknown'));
         }
       } catch {
         if (!cancelled) {
-          setSwVersion('unknown');
+          const cachedVersion = await resolveCachedVersion();
+          setSwVersion(cachedVersion ?? 'unknown');
         }
       }
     }
@@ -88,6 +118,144 @@ export const SettingsTab: React.FC = () => {
       cancelled = true;
     };
   }, []);
+
+  async function getRegistration() {
+    if (!('serviceWorker' in navigator)) {
+      throw new Error('Service workers are not supported in this browser.');
+    }
+
+    const reg =
+      (await navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL)) ??
+      (await navigator.serviceWorker.getRegistration());
+
+    if (!reg) {
+      throw new Error('Service worker is not registered yet.');
+    }
+
+    return reg;
+  }
+
+  async function waitForWaitingWorker(
+    reg: ServiceWorkerRegistration,
+    timeoutMs: number,
+  ): Promise<ServiceWorker | null> {
+    if (reg.waiting) return reg.waiting;
+
+    return new Promise<ServiceWorker | null>((resolve) => {
+      let resolved = false;
+
+      const finish = (worker: ServiceWorker | null) => {
+        if (resolved) return;
+        resolved = true;
+        resolve(worker);
+      };
+
+      const timer = window.setTimeout(() => {
+        finish(reg.waiting ?? null);
+      }, timeoutMs);
+
+      const onUpdateFound = () => {
+        const installing = reg.installing;
+        if (!installing) return;
+
+        installing.addEventListener('statechange', () => {
+          if (installing.state === 'installed') {
+            window.clearTimeout(timer);
+            finish(reg.waiting ?? installing);
+          } else if (installing.state === 'redundant') {
+            window.clearTimeout(timer);
+            finish(null);
+          }
+        });
+      };
+
+      reg.addEventListener('updatefound', onUpdateFound, { once: true });
+
+      if (reg.installing) {
+        onUpdateFound();
+      }
+    });
+  }
+
+  async function handleApplyUpdate() {
+    setIsApplyingUpdate(true);
+
+    try {
+      const reg = await getRegistration();
+      await reg.update();
+
+      const targetWorker = await waitForWaitingWorker(reg, 8000);
+      if (!targetWorker) {
+        alert('No new update to apply right now.');
+        return;
+      }
+
+      await new Promise<void>((resolve) => {
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          resolve();
+        };
+
+        navigator.serviceWorker.addEventListener('controllerchange', finish, {
+          once: true,
+        });
+
+        targetWorker.postMessage({ type: 'SKIP_WAITING' });
+        window.setTimeout(finish, 4000);
+      });
+
+      window.location.reload();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to apply update.';
+      alert(`Apply failed: ${msg}`);
+    } finally {
+      setIsApplyingUpdate(false);
+    }
+  }
+
+  async function handleCheckForUpdates() {
+    setIsCheckingUpdate(true);
+
+    try {
+      await getRegistration();
+
+      const resp = await fetch(
+        `${import.meta.env.BASE_URL}sw.js?ts=${Date.now()}`,
+        { cache: 'no-store' },
+      );
+      if (!resp.ok) {
+        throw new Error(`Failed to fetch sw.js (${resp.status})`);
+      }
+
+      const code = await resp.text();
+      const match = code.match(/wow-productivity-v(\d+)/i);
+      if (!match) {
+        throw new Error('Could not read version from sw.js');
+      }
+
+      const remote = Number(match[1]);
+      const current = parseVersionNumber(swVersion);
+      if (!Number.isFinite(remote)) {
+        throw new Error('Invalid version in sw.js');
+      }
+
+      if (!current || remote > current) {
+        const shouldApply = confirm(`Update v${remote} is available.\n\nApply now?`);
+        if (shouldApply) {
+          await handleApplyUpdate();
+        }
+      } else {
+        alert(`You are up to date (v${remote}).`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Update check failed.';
+      alert(`Update check failed: ${msg}`);
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  }
 
   async function handleExport() {
     const json = await exportBackupJson();
@@ -214,6 +382,24 @@ export const SettingsTab: React.FC = () => {
             onClick={confirmWipe}
           >
             Delete database
+          </button>
+        </div>
+      </section>
+
+      <section className="settings-section">
+        <div className="settings-section-title">Updates</div>
+        <div className="settings-button-column">
+          <button
+            className="button-ghost"
+            type="button"
+            onClick={handleCheckForUpdates}
+            disabled={isCheckingUpdate || isApplyingUpdate}
+          >
+            {isApplyingUpdate
+              ? 'Applying update...'
+              : isCheckingUpdate
+                ? 'Checking updates...'
+                : 'Check for update'}
           </button>
         </div>
       </section>

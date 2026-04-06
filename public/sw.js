@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wow-productivity-v22';
+const CACHE_NAME = 'wow-productivity-v26';
 
 const scopeUrl = new URL(self.registration.scope);
 const BASE_PATH = scopeUrl.pathname;
@@ -37,8 +37,10 @@ async function cacheAppShell(cache) {
   );
 }
 
-async function networkFirst(request) {
+async function cacheFirst(request) {
   const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
 
   try {
     const response = await fetch(request);
@@ -47,25 +49,15 @@ async function networkFirst(request) {
     }
     return response;
   } catch {
-    const cached = await cache.match(request);
-    if (cached) return cached;
+    if (isNavigationRequest(request)) {
+      const appShell =
+        (await cache.match(`${BASE_PATH}index.html`)) ??
+        (await cache.match(BASE_PATH));
+      if (appShell) return appShell;
+    }
 
-    const fallback = await cache.match(`${BASE_PATH}index.html`);
-    if (fallback) return fallback;
-    throw new Error('Network unavailable and no cached page.');
+    throw new Error('Offline and not cached');
   }
-}
-
-async function cacheFirst(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(request);
-  if (cached) return cached;
-
-  const response = await fetch(request);
-  if (response.ok && canRuntimeCache(new URL(request.url))) {
-    await cache.put(request, response.clone());
-  }
-  return response;
 }
 
 self.addEventListener('install', (event) => {
@@ -121,11 +113,6 @@ self.addEventListener('fetch', (event) => {
   const requestUrl = new URL(request.url);
   if (isServiceWorkerRequest(requestUrl)) {
     event.respondWith(fetch(request));
-    return;
-  }
-
-  if (isNavigationRequest(request)) {
-    event.respondWith(networkFirst(request));
     return;
   }
 
