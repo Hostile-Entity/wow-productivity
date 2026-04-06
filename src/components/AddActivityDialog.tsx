@@ -54,6 +54,17 @@ function fromDatetimeLocalValue(v: string): Date {
   return new Date(yy, mm - 1, dd, hh, min, 0, 0);
 }
 
+function splitDatetimeLocalValue(v: string): { date: string; time: string } {
+  const [datePart = '', timePart = ''] = v.split('T');
+  return { date: datePart, time: timePart.slice(0, 5) };
+}
+
+function mergeDateTimeLocal(datePart: string, timePart: string): string {
+  const date = datePart || '1970-01-01';
+  const time = timePart || '00:00';
+  return `${date}T${time}`;
+}
+
 export const AddActivityDialog: React.FC<Props> = ({
   open,
   onClose,
@@ -169,6 +180,9 @@ export const AddActivityDialog: React.FC<Props> = ({
   const selectedWhenRaw = fromDatetimeLocalValue(whenValue);
   const selectedWhen =
     Number.isFinite(selectedWhenRaw.getTime()) ? selectedWhenRaw : now;
+  const { date: whenDate, time: whenTime } = splitDatetimeLocalValue(whenValue);
+  const maxDate = toDatetimeLocalValue(now).slice(0, 10);
+  const maxTime = whenDate === maxDate ? toDatetimeLocalValue(now).slice(11, 16) : undefined;
 
   const unproductiveMinutesSoFar =
     effectiveCategory === 'unproductive'
@@ -367,15 +381,26 @@ export const AddActivityDialog: React.FC<Props> = ({
             {/* When (last choice) */}
             <div className="add-activity-field add-activity-field--when">
               <div className="field-label">When</div>
-              <input
-                className="input datetime-input"
-                type="datetime-local"
-                value={whenValue}
-                max={toDatetimeLocalValue(now)}
-                onChange={(e) => {
-                  onWhenDraftChange(e.target.value, true);
-                }}
-              />
+              <div className="add-activity-when-row">
+                <input
+                  className="input date-input"
+                  type="date"
+                  value={whenDate}
+                  max={maxDate}
+                  onChange={(e) => {
+                    onWhenDraftChange(mergeDateTimeLocal(e.target.value, whenTime), true);
+                  }}
+                />
+                <input
+                  className="input time-input"
+                  type="time"
+                  value={whenTime}
+                  max={maxTime}
+                  onChange={(e) => {
+                    onWhenDraftChange(mergeDateTimeLocal(whenDate, e.target.value), true);
+                  }}
+                />
+              </div>
             </div>
 
             {/* Reward preview */}

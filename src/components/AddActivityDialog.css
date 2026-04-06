@@ -161,8 +161,18 @@
     margin-top: 2px;
   }
   
-  .add-activity-field--when .datetime-input {
-    width: 100%;
+.add-activity-when-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .add-activity-field--when .date-input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .add-activity-field--when .time-input {
+    flex: 0 0 110px;
   }
   
   .add-activity-when-note {

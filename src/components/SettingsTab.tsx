@@ -47,7 +47,7 @@ const VolumePopup: React.FC<{
 };
 
 export const SettingsTab: React.FC = () => {
-  const { state, exportCsv, importCsv, wipeAll, setSoundVolume } = useGame();
+  const { state, exportBackupJson, importBackupJson, wipeAll, setSoundVolume } = useGame();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [chartOpen, setChartOpen] = useState(false);
@@ -77,12 +77,12 @@ export const SettingsTab: React.FC = () => {
   }, []);
 
   async function handleExport() {
-    const csv = await exportCsv();
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const json = await exportBackupJson();
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'wow-productivity-log.csv';
+    a.download = 'wow-productivity-backup.json';
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -90,9 +90,15 @@ export const SettingsTab: React.FC = () => {
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const text = await file.text();
-    await importCsv(text);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    try {
+      const text = await file.text();
+      await importBackupJson(text);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Invalid backup file.';
+      alert(`Import failed: ${msg}`);
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   }
 
   function confirmWipe() {
@@ -170,7 +176,7 @@ export const SettingsTab: React.FC = () => {
         <div className="settings-section-title">Data</div>
         <div className="settings-button-column">
           <button className="button-ghost" type="button" onClick={handleExport}>
-            Export log as CSV
+            Export backup as JSON
           </button>
 
           <button
@@ -178,13 +184,13 @@ export const SettingsTab: React.FC = () => {
             type="button"
             onClick={() => fileInputRef.current?.click()}
           >
-            Import log from CSV
+            Import backup from JSON
           </button>
 
           <input
             ref={fileInputRef}
             type="file"
-            accept=".csv,text/csv"
+            accept=".json,application/json"
             style={{ display: 'none' }}
             onChange={handleImport}
           />

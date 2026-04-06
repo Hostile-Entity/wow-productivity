@@ -15,7 +15,6 @@ import {
 import { deriveState, getUnproductiveMinutesSoFar } from './gameLogic';
 import { rewardFor } from '../config/activities';
 import { chestCoinsForLevel, rollChestLootForLevel } from '../config/rewards';
-import { MAX_LEVEL } from '../config/leveling';
 import { applyEffectsToReward, getInstantCoinsForReward } from '../config/effects';
 import {
   playTabClickSound,
@@ -62,8 +61,8 @@ interface GameContextValue {
   removeLogEntry(id: string): Promise<void>;
   openChest(): Promise<void>;
   useReward(type: RewardType): Promise<void>;
-  exportCsv(): Promise<string>;
-  importCsv(csv: string): Promise<void>;
+  exportBackupJson(): Promise<string>;
+  importBackupJson(jsonText: string): Promise<void>;
   wipeAll(): Promise<void>;
   setSoundVolume(v: number): void;
 }
@@ -335,95 +334,53 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
   
 
-  async function exportCsv(): Promise<string> {
-    const log = await getAllLog();
-    const header = [
-      'id',
-      'kind',
-      'timestamp',
-      'activityName',
-      'category',
-      'tier',
-      'minutes',
-      'coinsDelta',
-      'xpDelta',
-      'rewardType',
-      'notes',
-    ];
-    const rows = log.map((e) => {
-      const anyE: any = e;
-      return [
-        e.id,
-        e.kind,
-        e.timestamp,
-        anyE.activityName ?? '',
-        anyE.category ?? '',
-        anyE.tier ?? '',
-        anyE.minutes ?? '',
-        anyE.coinsDelta ?? '',
-        anyE.xpDelta ?? '',
-        anyE.rewardType ?? '',
-        e.notes ?? '',
-      ]
-        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
-        .join(',');
-    });
-    return [header.join(','), ...rows].join('\n');
+  async function exportBackupJson(): Promise<string> {
+    const [activities, logEntries] = await Promise.all([
+      getAllActivities(),
+      getAllLog(),
+    ]);
+
+    return JSON.stringify(
+      {
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        activities,
+        logEntries,
+      },
+      null,
+      2,
+    );
   }
 
-  async function importCsv(csv: string): Promise<void> {
-    const lines = csv.split(/\r?\n/).filter(Boolean);
-    if (lines.length <= 1) return;
-    const [headerLine, ...dataLines] = lines;
-    const header = headerLine.split(',').map((h) => h.replace(/(^"|"$)/g, ''));
-    const idx = (name: string) => header.indexOf(name);
+  async function importBackupJson(jsonText: string): Promise<void> {
+    const parsed: unknown = JSON.parse(jsonText);
+
+    if (!parsed || typeof parsed !== 'object') {
+      throw new Error('Backup JSON must be an object.');
+    }
+
+    const backup = parsed as {
+      version?: unknown;
+      activities?: unknown;
+      logEntries?: unknown;
+    };
+
+    if (backup.version !== 1) {
+      throw new Error('Unsupported backup version.');
+    }
+
+    if (!Array.isArray(backup.activities) || !Array.isArray(backup.logEntries)) {
+      throw new Error('Backup JSON is missing activities or logEntries arrays.');
+    }
 
     await clearAll();
 
-    for (const line of dataLines) {
-      const cols = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map((c) =>
-        c.replace(/(^"|"$)/g, '').replace(/""/g, '"'),
-      );
-      const kind = cols[idx('kind')] as LogEntry['kind'];
-      const base: any = {
-        id: cols[idx('id')] || crypto.randomUUID(),
-        kind,
-        timestamp: cols[idx('timestamp')],
-        notes: cols[idx('notes')] || undefined,
-      };
+    for (const activity of backup.activities as Activity[]) {
+      await putActivity(activity);
+    }
 
-      if (kind === 'activity') {
-        const entry: LogEntry = {
-          ...base,
-          activityName: cols[idx('activityName')],
-          category: cols[idx('category')],
-          tier: cols[idx('tier')],
-          minutes: Number(cols[idx('minutes')] || 0),
-          coinsDelta: Number(cols[idx('coinsDelta')] || 0),
-          xpDelta: Number(cols[idx('xpDelta')] || 0),
-        };
-        await putLogEntry(entry);
-      } else if (kind === 'box-opened') {
-        const entry: LogEntry = {
-          ...base,
-          coinsDelta: Number(cols[idx('coinsDelta')] || 0),
-          rewardType: (cols[idx('rewardType')] || undefined) as any,
-          sourceLevel: 0,
-        };
-        await putLogEntry(entry);
-      } else if (kind === 'reward-gained' || kind === 'reward-used') {
-        const entry: LogEntry = {
-          ...base,
-          rewardType: cols[idx('rewardType')] as RewardType,
-        };
-        await putLogEntry(entry);
-      } else if (kind === 'coins-adjust') {
-        const entry: LogEntry = {
-          ...base,
-          coinsDelta: Number(cols[idx('coinsDelta')] || 0),
-        };
-        await putLogEntry(entry);
-      }
+    for (const entry of backup.logEntries as LogEntry[]) {
+      await putLogEntry(entry);
     }
 
     await refresh();
@@ -452,8 +409,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     removeLogEntry,
     openChest,
     useReward,
-    exportCsv,
-    importCsv,
+    exportBackupJson,
+    importBackupJson,
     wipeAll,
     setSoundVolume,
   };
