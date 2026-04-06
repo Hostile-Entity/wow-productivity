@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wow-productivity-v24';
+const CACHE_NAME = 'wow-productivity-v25';
 
 const scopeUrl = new URL(self.registration.scope);
 const BASE_PATH = scopeUrl.pathname;

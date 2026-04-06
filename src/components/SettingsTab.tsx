@@ -70,25 +70,45 @@ export const SettingsTab: React.FC = () => {
   useEffect(() => {
     let cancelled = false;
 
+    async function resolveCachedVersion(): Promise<string | null> {
+      if (!('caches' in window)) return null;
+      const keys = await caches.keys();
+      const versions = keys
+        .map((k) => {
+          const m = k.match(/^wow-productivity-v(\d+)$/i);
+          return m ? Number(m[1]) : null;
+        })
+        .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+
+      if (versions.length === 0) return null;
+      return `v${Math.max(...versions)}`;
+    }
+
     async function fetchVersion() {
       try {
+        const cachedVersion = await resolveCachedVersion();
+        if (!cancelled && cachedVersion) {
+          setSwVersion(cachedVersion);
+        }
+
         const resp = await fetch(
           `${import.meta.env.BASE_URL}sw.js?ts=${Date.now()}`,
           { cache: 'no-store' },
         );
         if (!resp.ok) {
-          if (!cancelled) setSwVersion('unknown');
+          if (!cancelled && !cachedVersion) setSwVersion('unknown');
           return;
         }
 
         const code = await resp.text();
         const match = code.match(/wow-productivity-v(\d+)/i);
         if (!cancelled) {
-          setSwVersion(match ? `v${match[1]}` : 'unknown');
+          setSwVersion(match ? `v${match[1]}` : (cachedVersion ?? 'unknown'));
         }
       } catch {
         if (!cancelled) {
-          setSwVersion('unknown');
+          const cachedVersion = await resolveCachedVersion();
+          setSwVersion(cachedVersion ?? 'unknown');
         }
       }
     }
