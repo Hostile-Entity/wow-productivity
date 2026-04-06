@@ -1,4 +1,6 @@
-const CACHE_NAME = 'wow-productivity-v12';
+const CACHE_NAME = 'wow-productivity-v13';
+const META_CACHE_NAME = 'wp-meta-cache';
+const UPDATE_APPROVAL_KEY = '__manual-update-approved__';
 
 const scopeUrl = new URL(self.registration.scope);
 const BASE_PATH = scopeUrl.pathname;
@@ -8,24 +10,66 @@ const ASSETS = [
   `${BASE_PATH}index.html`,
 ];
 
+const updateApprovalRequest = new Request(`${BASE_PATH}${UPDATE_APPROVAL_KEY}`);
+
+async function approveNextUpdate() {
+  const cache = await caches.open(META_CACHE_NAME);
+  await cache.put(updateApprovalRequest, new Response('1'));
+}
+
+async function consumeUpdateApproval() {
+  const cache = await caches.open(META_CACHE_NAME);
+  const approved = await cache.match(updateApprovalRequest);
+  if (!approved) return false;
+  await cache.delete(updateApprovalRequest);
+  return true;
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    }),
+    (async () => {
+      const isUpdateInstall = !!self.registration.active;
+      if (isUpdateInstall) {
+        const approved = await consumeUpdateApproval();
+        if (!approved) {
+          throw new Error('Update install blocked until user applies update.');
+        }
+      }
+
+      const cache = await caches.open(CACHE_NAME);
+      await cache.addAll(ASSETS);
+    })(),
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys.map((key) => (key === CACHE_NAME ? null : caches.delete(key))),
-        ),
-      ),
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys.map((key) => {
+          if (key === CACHE_NAME || key === META_CACHE_NAME) return null;
+          return caches.delete(key);
+        }),
+      );
+
+      await self.clients.claim();
+    })(),
   );
+});
+
+self.addEventListener('message', (event) => {
+  const message = event.data;
+  if (!message || typeof message !== 'object') return;
+
+  if (message.type === 'APPROVE_NEXT_UPDATE') {
+    event.waitUntil(approveNextUpdate());
+    return;
+  }
+
+  if (message.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('fetch', (event) => {

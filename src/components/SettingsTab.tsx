@@ -9,6 +9,14 @@ function clampVolume(v: number) {
   return Math.max(0, Math.min(100, v));
 }
 
+function parseVersionNumber(input: string | null): number | null {
+  if (!input) return null;
+  const match = input.match(/v(\d+)/i);
+  if (!match) return null;
+  const n = Number(match[1]);
+  return Number.isFinite(n) ? n : null;
+}
+
 const VolumePopup: React.FC<{
   open: boolean;
   value: number;
@@ -54,6 +62,10 @@ export const SettingsTab: React.FC = () => {
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [devSnapshot, setDevSnapshot] = useState<LedgerSnapshot | null>(null);
   const [swVersion, setSwVersion] = useState<string | null>(null);
+  const [updateStatus, setUpdateStatus] = useState<string>('Idle');
+  const [latestVersion, setLatestVersion] = useState<number | null>(null);
+  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
+  const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
 
   const hasDailyBalances = (state.dailyBalances?.length ?? 0) > 0;
 
@@ -75,6 +87,131 @@ export const SettingsTab: React.FC = () => {
 
     void fetchVersion();
   }, []);
+
+  async function getRegistration() {
+    if (!('serviceWorker' in navigator)) {
+      throw new Error('Service workers are not supported in this browser.');
+    }
+
+    const reg =
+      (await navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL)) ??
+      (await navigator.serviceWorker.getRegistration());
+
+    if (!reg) {
+      throw new Error('Service worker is not registered yet.');
+    }
+
+    return reg;
+  }
+
+  async function handleCheckForUpdate() {
+    setIsCheckingUpdate(true);
+    setUpdateStatus('Checking for update...');
+    setLatestVersion(null);
+
+    try {
+      await getRegistration();
+
+      const resp = await fetch(
+        `${import.meta.env.BASE_URL}sw.js?ts=${Date.now()}`,
+        { cache: 'no-store' },
+      );
+
+      if (!resp.ok) {
+        throw new Error(`Failed to fetch sw.js (${resp.status}).`);
+      }
+
+      const swCode = await resp.text();
+      const match = swCode.match(/wow-productivity-v(\d+)/i);
+      if (!match) {
+        throw new Error('Could not read version from sw.js');
+      }
+
+      const remote = Number(match[1]);
+      const current = parseVersionNumber(swVersion);
+      if (!Number.isFinite(remote)) {
+        throw new Error('Invalid version in sw.js');
+      }
+
+      if (current === null || remote > current) {
+        setLatestVersion(remote);
+        setUpdateStatus(`Update available: v${remote}`);
+      } else {
+        setUpdateStatus(`You are up to date (v${remote})`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Update check failed.';
+      setUpdateStatus(`Update check failed: ${msg}`);
+    } finally {
+      setIsCheckingUpdate(false);
+    }
+  }
+
+  async function handleApplyUpdate() {
+    setIsApplyingUpdate(true);
+    setUpdateStatus('Applying update...');
+
+    try {
+      const reg = await getRegistration();
+      if (!reg.active) {
+        throw new Error('No active service worker found. Reload and try again.');
+      }
+
+      reg.active.postMessage({ type: 'APPROVE_NEXT_UPDATE' });
+      await reg.update();
+
+      let targetWorker = reg.waiting;
+
+      if (!targetWorker && reg.installing) {
+        targetWorker = await new Promise<ServiceWorker>((resolve, reject) => {
+          const installing = reg.installing;
+          if (!installing) {
+            reject(new Error('No new service worker is installing.'));
+            return;
+          }
+
+          installing.addEventListener('statechange', () => {
+            if (installing.state === 'installed') {
+              resolve(installing);
+            } else if (installing.state === 'redundant') {
+              reject(new Error('Update failed to install.'));
+            }
+          });
+        });
+      }
+
+      if (!targetWorker) {
+        setUpdateStatus('No new version available to apply.');
+        return;
+      }
+
+      await new Promise<void>((resolve) => {
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          resolve();
+        };
+
+        navigator.serviceWorker.addEventListener('controllerchange', finish, {
+          once: true,
+        });
+
+        targetWorker?.postMessage({ type: 'SKIP_WAITING' });
+
+        setTimeout(finish, 4000);
+      });
+
+      window.location.reload();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to apply update.';
+      setUpdateStatus(`Apply failed: ${msg}`);
+    } finally {
+      setIsApplyingUpdate(false);
+    }
+  }
+
+  const canApplyUpdate = latestVersion !== null;
 
   async function handleExport() {
     const json = await exportBackupJson();
@@ -194,6 +331,26 @@ export const SettingsTab: React.FC = () => {
             style={{ display: 'none' }}
             onChange={handleImport}
           />
+
+          <button
+            className="button-ghost"
+            type="button"
+            onClick={handleCheckForUpdate}
+            disabled={isCheckingUpdate || isApplyingUpdate}
+          >
+            {isCheckingUpdate ? 'Checking update...' : 'Check for app update'}
+          </button>
+
+          <button
+            className="button-ghost"
+            type="button"
+            onClick={handleApplyUpdate}
+            disabled={!canApplyUpdate || isCheckingUpdate || isApplyingUpdate}
+          >
+            {isApplyingUpdate ? 'Applying update...' : 'Apply update'}
+          </button>
+
+          <div className="small-muted-text settings-note">{updateStatus}</div>
 
           <button
             className="button-ghost button-ghost--danger"
