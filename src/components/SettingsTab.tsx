@@ -62,8 +62,6 @@ export const SettingsTab: React.FC = () => {
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [devSnapshot, setDevSnapshot] = useState<LedgerSnapshot | null>(null);
   const [swVersion, setSwVersion] = useState<string | null>(null);
-  const [updateStatus, setUpdateStatus] = useState<string>('Idle');
-  const [latestVersion, setLatestVersion] = useState<number | null>(null);
   const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
   const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
 
@@ -106,8 +104,6 @@ export const SettingsTab: React.FC = () => {
 
   async function handleCheckForUpdate() {
     setIsCheckingUpdate(true);
-    setUpdateStatus('Checking for update...');
-    setLatestVersion(null);
 
     try {
       await getRegistration();
@@ -134,14 +130,18 @@ export const SettingsTab: React.FC = () => {
       }
 
       if (current === null || remote > current) {
-        setLatestVersion(remote);
-        setUpdateStatus(`Update available: v${remote}`);
+        const shouldApply = confirm(
+          `Update v${remote} is available.\n\nApply now?`,
+        );
+        if (shouldApply) {
+          await handleApplyUpdate();
+        }
       } else {
-        setUpdateStatus(`You are up to date (v${remote})`);
+        alert(`You are up to date (v${remote}).`);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Update check failed.';
-      setUpdateStatus(`Update check failed: ${msg}`);
+      alert(`Update check failed: ${msg}`);
     } finally {
       setIsCheckingUpdate(false);
     }
@@ -149,7 +149,6 @@ export const SettingsTab: React.FC = () => {
 
   async function handleApplyUpdate() {
     setIsApplyingUpdate(true);
-    setUpdateStatus('Applying update...');
 
     try {
       const reg = await getRegistration();
@@ -181,7 +180,7 @@ export const SettingsTab: React.FC = () => {
       }
 
       if (!targetWorker) {
-        setUpdateStatus('No new version available to apply.');
+        alert('No new version available to apply.');
         return;
       }
 
@@ -205,13 +204,11 @@ export const SettingsTab: React.FC = () => {
       window.location.reload();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to apply update.';
-      setUpdateStatus(`Apply failed: ${msg}`);
+      alert(`Apply failed: ${msg}`);
     } finally {
       setIsApplyingUpdate(false);
     }
   }
-
-  const canApplyUpdate = latestVersion !== null;
 
   async function handleExport() {
     const json = await exportBackupJson();
@@ -338,19 +335,12 @@ export const SettingsTab: React.FC = () => {
             onClick={handleCheckForUpdate}
             disabled={isCheckingUpdate || isApplyingUpdate}
           >
-            {isCheckingUpdate ? 'Checking update...' : 'Check for app update'}
+            {isApplyingUpdate
+              ? 'Applying update...'
+              : isCheckingUpdate
+                ? 'Checking update...'
+                : 'Check for app update'}
           </button>
-
-          <button
-            className="button-ghost"
-            type="button"
-            onClick={handleApplyUpdate}
-            disabled={!canApplyUpdate || isCheckingUpdate || isApplyingUpdate}
-          >
-            {isApplyingUpdate ? 'Applying update...' : 'Apply update'}
-          </button>
-
-          <div className="small-muted-text settings-note">{updateStatus}</div>
 
           <button
             className="button-ghost button-ghost--danger"
