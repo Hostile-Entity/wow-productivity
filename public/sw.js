@@ -1,43 +1,78 @@
-const CACHE_NAME = 'wow-productivity-v13';
-const META_CACHE_NAME = 'wp-meta-cache';
-const UPDATE_APPROVAL_KEY = '__manual-update-approved__';
+const CACHE_NAME = 'wow-productivity-v22';
 
 const scopeUrl = new URL(self.registration.scope);
 const BASE_PATH = scopeUrl.pathname;
 
-const ASSETS = [
-  BASE_PATH,
-  `${BASE_PATH}index.html`,
-];
+const APP_SHELL_URLS = [BASE_PATH, `${BASE_PATH}index.html`];
 
-const updateApprovalRequest = new Request(`${BASE_PATH}${UPDATE_APPROVAL_KEY}`);
-
-async function approveNextUpdate() {
-  const cache = await caches.open(META_CACHE_NAME);
-  await cache.put(updateApprovalRequest, new Response('1'));
+function isSameOrigin(url) {
+  return url.origin === self.location.origin;
 }
 
-async function consumeUpdateApproval() {
-  const cache = await caches.open(META_CACHE_NAME);
-  const approved = await cache.match(updateApprovalRequest);
-  if (!approved) return false;
-  await cache.delete(updateApprovalRequest);
+function isServiceWorkerRequest(url) {
+  return url.pathname.endsWith('/sw.js');
+}
+
+function isNavigationRequest(request) {
+  if (request.mode === 'navigate') return true;
+  const accept = request.headers.get('accept') || '';
+  return accept.includes('text/html');
+}
+
+function canRuntimeCache(url) {
+  if (!isSameOrigin(url)) return false;
+  if (isServiceWorkerRequest(url)) return false;
   return true;
+}
+
+async function cacheAppShell(cache) {
+  await Promise.all(
+    APP_SHELL_URLS.map(async (url) => {
+      const req = new Request(url, { cache: 'reload' });
+      const resp = await fetch(req);
+      if (resp.ok) {
+        await cache.put(req, resp.clone());
+      }
+    }),
+  );
+}
+
+async function networkFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+
+  try {
+    const response = await fetch(request);
+    if (response.ok && canRuntimeCache(new URL(request.url))) {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+
+    const fallback = await cache.match(`${BASE_PATH}index.html`);
+    if (fallback) return fallback;
+    throw new Error('Network unavailable and no cached page.');
+  }
+}
+
+async function cacheFirst(request) {
+  const cache = await caches.open(CACHE_NAME);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (response.ok && canRuntimeCache(new URL(request.url))) {
+    await cache.put(request, response.clone());
+  }
+  return response;
 }
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     (async () => {
-      const isUpdateInstall = !!self.registration.active;
-      if (isUpdateInstall) {
-        const approved = await consumeUpdateApproval();
-        if (!approved) {
-          throw new Error('Update install blocked until user applies update.');
-        }
-      }
-
       const cache = await caches.open(CACHE_NAME);
-      await cache.addAll(ASSETS);
+      await cacheAppShell(cache);
     })(),
   );
 });
@@ -48,7 +83,7 @@ self.addEventListener('activate', (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys.map((key) => {
-          if (key === CACHE_NAME || key === META_CACHE_NAME) return null;
+          if (key === CACHE_NAME) return null;
           return caches.delete(key);
         }),
       );
@@ -62,8 +97,15 @@ self.addEventListener('message', (event) => {
   const message = event.data;
   if (!message || typeof message !== 'object') return;
 
-  if (message.type === 'APPROVE_NEXT_UPDATE') {
-    event.waitUntil(approveNextUpdate());
+  if (message.type === 'GET_VERSION') {
+    const replyPort = event.ports?.[0];
+    if (replyPort) {
+      const match = CACHE_NAME.match(/-v(\d+)/i);
+      replyPort.postMessage({
+        cacheName: CACHE_NAME,
+        version: match ? Number(match[1]) : null,
+      });
+    }
     return;
   }
 
@@ -75,14 +117,17 @@ self.addEventListener('message', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((resp) => {
-        const copy = resp.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-        return resp;
-      });
-    }),
-  );
+
+  const requestUrl = new URL(request.url);
+  if (isServiceWorkerRequest(requestUrl)) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  if (isNavigationRequest(request)) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
+
+  event.respondWith(cacheFirst(request));
 });

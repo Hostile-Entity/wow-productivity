@@ -9,14 +9,6 @@ function clampVolume(v: number) {
   return Math.max(0, Math.min(100, v));
 }
 
-function parseVersionNumber(input: string | null): number | null {
-  if (!input) return null;
-  const match = input.match(/v(\d+)/i);
-  if (!match) return null;
-  const n = Number(match[1]);
-  return Number.isFinite(n) ? n : null;
-}
-
 const VolumePopup: React.FC<{
   open: boolean;
   value: number;
@@ -61,154 +53,41 @@ export const SettingsTab: React.FC = () => {
   const [chartOpen, setChartOpen] = useState(false);
   const [volumeOpen, setVolumeOpen] = useState(false);
   const [devSnapshot, setDevSnapshot] = useState<LedgerSnapshot | null>(null);
-  const [swVersion, setSwVersion] = useState<string | null>(null);
-  const [isCheckingUpdate, setIsCheckingUpdate] = useState(false);
-  const [isApplyingUpdate, setIsApplyingUpdate] = useState(false);
+  const [swVersion, setSwVersion] = useState<string | null>('detecting...');
 
   const hasDailyBalances = (state.dailyBalances?.length ?? 0) > 0;
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchVersion() {
-      if (!('caches' in window)) return;
       try {
-        const keys = await caches.keys();
-        const key = keys.find((k) => k.startsWith('wow-productivity-'));
-        if (!key) return;
-
-        const match = key.match(/-v(\d+)/);
-        const version = match ? `v${match[1]}` : key;
-        setSwVersion(version);
-      } catch {
-        // ignore
-      }
-    }
-
-    void fetchVersion();
-  }, []);
-
-  async function getRegistration() {
-    if (!('serviceWorker' in navigator)) {
-      throw new Error('Service workers are not supported in this browser.');
-    }
-
-    const reg =
-      (await navigator.serviceWorker.getRegistration(import.meta.env.BASE_URL)) ??
-      (await navigator.serviceWorker.getRegistration());
-
-    if (!reg) {
-      throw new Error('Service worker is not registered yet.');
-    }
-
-    return reg;
-  }
-
-  async function handleCheckForUpdate() {
-    setIsCheckingUpdate(true);
-
-    try {
-      await getRegistration();
-
-      const resp = await fetch(
-        `${import.meta.env.BASE_URL}sw.js?ts=${Date.now()}`,
-        { cache: 'no-store' },
-      );
-
-      if (!resp.ok) {
-        throw new Error(`Failed to fetch sw.js (${resp.status}).`);
-      }
-
-      const swCode = await resp.text();
-      const match = swCode.match(/wow-productivity-v(\d+)/i);
-      if (!match) {
-        throw new Error('Could not read version from sw.js');
-      }
-
-      const remote = Number(match[1]);
-      const current = parseVersionNumber(swVersion);
-      if (!Number.isFinite(remote)) {
-        throw new Error('Invalid version in sw.js');
-      }
-
-      if (current === null || remote > current) {
-        const shouldApply = confirm(
-          `Update v${remote} is available.\n\nApply now?`,
+        const resp = await fetch(
+          `${import.meta.env.BASE_URL}sw.js?ts=${Date.now()}`,
+          { cache: 'no-store' },
         );
-        if (shouldApply) {
-          await handleApplyUpdate();
+        if (!resp.ok) {
+          if (!cancelled) setSwVersion('unknown');
+          return;
         }
-      } else {
-        alert(`You are up to date (v${remote}).`);
+
+        const code = await resp.text();
+        const match = code.match(/wow-productivity-v(\d+)/i);
+        if (!cancelled) {
+          setSwVersion(match ? `v${match[1]}` : 'unknown');
+        }
+      } catch {
+        if (!cancelled) {
+          setSwVersion('unknown');
+        }
       }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Update check failed.';
-      alert(`Update check failed: ${msg}`);
-    } finally {
-      setIsCheckingUpdate(false);
     }
-  }
+    void fetchVersion();
 
-  async function handleApplyUpdate() {
-    setIsApplyingUpdate(true);
-
-    try {
-      const reg = await getRegistration();
-      if (!reg.active) {
-        throw new Error('No active service worker found. Reload and try again.');
-      }
-
-      reg.active.postMessage({ type: 'APPROVE_NEXT_UPDATE' });
-      await reg.update();
-
-      let targetWorker = reg.waiting;
-
-      if (!targetWorker && reg.installing) {
-        targetWorker = await new Promise<ServiceWorker>((resolve, reject) => {
-          const installing = reg.installing;
-          if (!installing) {
-            reject(new Error('No new service worker is installing.'));
-            return;
-          }
-
-          installing.addEventListener('statechange', () => {
-            if (installing.state === 'installed') {
-              resolve(installing);
-            } else if (installing.state === 'redundant') {
-              reject(new Error('Update failed to install.'));
-            }
-          });
-        });
-      }
-
-      if (!targetWorker) {
-        alert('No new version available to apply.');
-        return;
-      }
-
-      await new Promise<void>((resolve) => {
-        let done = false;
-        const finish = () => {
-          if (done) return;
-          done = true;
-          resolve();
-        };
-
-        navigator.serviceWorker.addEventListener('controllerchange', finish, {
-          once: true,
-        });
-
-        targetWorker?.postMessage({ type: 'SKIP_WAITING' });
-
-        setTimeout(finish, 4000);
-      });
-
-      window.location.reload();
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Failed to apply update.';
-      alert(`Apply failed: ${msg}`);
-    } finally {
-      setIsApplyingUpdate(false);
-    }
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleExport() {
     const json = await exportBackupJson();
@@ -328,19 +207,6 @@ export const SettingsTab: React.FC = () => {
             style={{ display: 'none' }}
             onChange={handleImport}
           />
-
-          <button
-            className="button-ghost"
-            type="button"
-            onClick={handleCheckForUpdate}
-            disabled={isCheckingUpdate || isApplyingUpdate}
-          >
-            {isApplyingUpdate
-              ? 'Applying update...'
-              : isCheckingUpdate
-                ? 'Checking update...'
-                : 'Check for app update'}
-          </button>
 
           <button
             className="button-ghost button-ghost--danger"

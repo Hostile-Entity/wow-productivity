@@ -17,7 +17,7 @@ const isCapacitor = window.location.protocol === 'capacitor:';
 if ('serviceWorker' in navigator && !isCapacitor) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register(`${import.meta.env.BASE_URL}sw.js`)
+      .register(`${import.meta.env.BASE_URL}sw.js`, { updateViaCache: 'none' })
       .catch(() => {
         // ignore
       });
