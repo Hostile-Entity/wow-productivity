@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wow-productivity-v14';
+const CACHE_NAME = 'wow-productivity-v15';
 const META_CACHE_NAME = 'wp-meta-cache';
 const UPDATE_APPROVAL_KEY = '__manual-update-approved__';
 
@@ -61,6 +61,18 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('message', (event) => {
   const message = event.data;
   if (!message || typeof message !== 'object') return;
+
+  if (message.type === 'GET_VERSION') {
+    const replyPort = event.ports?.[0];
+    if (replyPort) {
+      const match = CACHE_NAME.match(/-v(\d+)/i);
+      replyPort.postMessage({
+        cacheName: CACHE_NAME,
+        version: match ? Number(match[1]) : null,
+      });
+    }
+    return;
+  }
 
   if (message.type === 'APPROVE_NEXT_UPDATE') {
     event.waitUntil(
