@@ -17,15 +17,6 @@ const SOUND_FILES: Record<SoundKey, string> = {
   negativeCoins: assetUrl('sounds/NPCBloodElfFemaleNoblePissed08.ogg'),
 };
 
-const ALL_SOUNDS: SoundKey[] = [
-  'tabClick',
-  'uiClick',
-  'levelUp',
-  'coinsPickup',
-  'rewardUse',
-  'negativeCoins',
-];
-
 const BASE_VOLUMES: Record<SoundKey, number> = {
   tabClick: 0.5,
   uiClick: 0.5,
@@ -34,12 +25,12 @@ const BASE_VOLUMES: Record<SoundKey, number> = {
   rewardUse: 0.7,
   negativeCoins: 0.7,
 };
+const ATTACK_SECONDS = 0.004;
 
-let SFX_MASTER = 1;
+let SFX_MASTER = 0;
 let audioContext: AudioContext | null = null;
 const buffers = new Map<SoundKey, AudioBuffer>();
 const loading = new Map<SoundKey, Promise<AudioBuffer>>();
-let primePromise: Promise<void> | null = null;
 
 function clamp01(v: number) {
   return Math.max(0, Math.min(1, v));
@@ -48,8 +39,19 @@ function clamp01(v: number) {
 function getAudioContext() {
   if (typeof window === 'undefined') return null;
   if (audioContext) return audioContext;
-  const Ctor = window.AudioContext || (window as any).webkitAudioContext;
+  const Ctor = window.AudioContext || (window as Window & {
+    webkitAudioContext?: typeof AudioContext;
+  }).webkitAudioContext;
   if (!Ctor) return null;
+  try {
+    const { audioSession } = window.navigator as Navigator & {
+      audioSession?: { type: string };
+    };
+    // Where supported, mix app sounds with music instead of taking over audio.
+    if (audioSession) audioSession.type = 'ambient';
+  } catch {
+    // Playback still works when this session type is unavailable.
+  }
   audioContext = new Ctor();
   return audioContext;
 }
@@ -96,22 +98,33 @@ async function ensureResumed() {
   return ctx;
 }
 
+function canPlaySound() {
+  return SFX_MASTER > 0 && typeof document !== 'undefined' && !document.hidden;
+}
+
 async function playSound(key: SoundKey, onEnded?: () => void) {
+  if (!canPlaySound()) return onEnded?.();
   const ctx = await ensureResumed();
-  if (!ctx) return;
+  if (!ctx) return onEnded?.();
 
   let buffer: AudioBuffer;
   try {
     buffer = await loadBuffer(key);
   } catch {
-    return;
+    return onEnded?.();
   }
+  if (!canPlaySound()) return onEnded?.();
 
   const source = ctx.createBufferSource();
   source.buffer = buffer;
 
   const gain = ctx.createGain();
-  gain.gain.value = clamp01(BASE_VOLUMES[key] * SFX_MASTER);
+  const start = ctx.currentTime;
+  gain.gain.setValueAtTime(0, start);
+  gain.gain.linearRampToValueAtTime(
+    clamp01(BASE_VOLUMES[key] * SFX_MASTER),
+    start + ATTACK_SECONDS,
+  );
 
   source.connect(gain);
   gain.connect(ctx.destination);
@@ -121,20 +134,10 @@ async function playSound(key: SoundKey, onEnded?: () => void) {
   }
 
   try {
-    source.start(0);
+    source.start(start);
   } catch {
     if (onEnded) onEnded();
   }
-}
-
-export function primeAudio(): Promise<void> {
-  if (primePromise) return primePromise;
-  primePromise = (async () => {
-    const ctx = await ensureResumed();
-    if (!ctx) return;
-    await Promise.all(ALL_SOUNDS.map((key) => loadBuffer(key)));
-  })();
-  return primePromise;
 }
 
 let chestQueue: SoundKey[] = [];
